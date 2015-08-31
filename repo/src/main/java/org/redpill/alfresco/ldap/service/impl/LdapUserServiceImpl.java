@@ -63,7 +63,7 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
         ctx.removeFromEnvironment("com.sun.jndi.ldap.connect.pool");
         String fullDn = LdapUtils.getFullDn(dn, ctx).toString();
         logger.trace("Trying to connect with DN: " + fullDn);
-        //logger.trace("Trying to connect password: " + oldPassword);
+        // logger.trace("Trying to connect password: " + oldPassword);
         ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, fullDn);
         ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, oldPassword);
         try {
@@ -78,6 +78,16 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
         return null;
       }
     });
+  }
+
+  @Override
+  public void createUser(String userId, String password, String email, String firstName, String lastName) {
+    throw new UnsupportedOperationException("Not yet implemented!");
+  }
+
+  @Override
+  public void deleteUser(String userId) {
+    throw new UnsupportedOperationException("Not yet implemented!");
   }
 
   @Override
