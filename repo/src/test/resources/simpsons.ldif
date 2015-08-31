@@ -1,0 +1,74 @@
+version: 1
+
+dn: dc=test,dc=alfresco,dc=redpill,dc=org
+objectClass: extensibleObject
+objectClass: top
+objectClass: organization
+o: ldap
+dc: test
+
+dn: ou=users,dc=test,dc=alfresco,dc=redpill,dc=org
+objectClass: top
+objectClass: organizationalUnit
+ou: users
+
+dn: ou=groups,dc=test,dc=alfresco,dc=redpill,dc=org
+objectClass: top
+objectClass: organizationalUnit
+ou: groups
+
+dn: cn=Marge Simpson,ou=users,dc=test,dc=alfresco,dc=redpill,dc=org
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Marge Simpson
+sn: Simpson
+mail: marge@simpsons.com
+uid: marge
+userPassword: {SSHA}02viRdWWFw5XnhQR4VPgZGpt+9Ej4Axd
+
+dn: cn=Homer Simpson,ou=users,dc=test,dc=alfresco,dc=redpill,dc=org
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Homer Simpson
+sn: Simpson
+mail: homer@simpsons.com
+uid: homer
+userPassword: {SSHA}02viRdWWFw5XnhQR4VPgZGpt+9Ej4Axd
+
+dn: cn=Bart Simpson,ou=users,dc=test,dc=alfresco,dc=redpill,dc=org
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Bart Simpson
+sn: Simpson
+mail: bart@simpsons.com
+uid: bart
+userPassword: {SSHA}02viRdWWFw5XnhQR4VPgZGpt+9Ej4Axd
+
+dn: cn=Lisa Simpson,ou=users,dc=test,dc=alfresco,dc=redpill,dc=org
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Lisa Simpson
+sn: Simpson
+mail: lisa@simpsons.com
+uid: lisa
+userPassword: {SSHA}02viRdWWFw5XnhQR4VPgZGpt+9Ej4Axd
+
+dn: cn=Maggie Simpson,ou=users,dc=test,dc=alfresco,dc=redpill,dc=org
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Maggie Simpson
+sn: Simpson
+mail: maggie@simpsons.com
+uid: maggie
+userPassword: {SSHA}02viRdWWFw5XnhQR4VPgZGpt+9Ej4Axd
+
