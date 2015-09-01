@@ -192,7 +192,7 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
     Assert.notNull(objectClasses);
     Assert.notEmpty(objectClasses);
     ldapTemplate = new LdapTemplate(contextSource);
-    logger.info("Initalized" + this.getClass().getName());
+    logger.info("Initalized " + this.getClass().getName());
   }
 
   public void setUsernameMapper(LdapUsernameToDnMapper usernameMapper) {

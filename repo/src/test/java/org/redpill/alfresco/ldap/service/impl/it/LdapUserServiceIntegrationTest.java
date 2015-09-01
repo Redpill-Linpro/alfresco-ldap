@@ -91,7 +91,7 @@ public class LdapUserServiceIntegrationTest extends AbstractLdapRepoIntegrationT
     _testSystemAddUser(USER_HAPPY);
     _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
     assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
-    ldapUserService.editUser(USER_HAPPY, DEFAULT_PASSWORD, null, "happy2@simpson.com", null, null);
+    ldapUserService.editUser(USER_HAPPY, DEFAULT_PASSWORD, CHANGED_PASSWORD, "happy2@simpson.com", null, null);
   }
 
 }
