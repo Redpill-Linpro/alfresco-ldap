@@ -26,6 +26,17 @@ public interface LdapUserService {
   public void createUser(String userId, String password, String email, String firstName, String lastName);
   
   /**
+   * Modify a user
+   * @param userId The user id (not modifyable)
+   * @param oldpassword The old password (null if system change, otherwise authenticate as user)
+   * @param newPassword The new password (null if not change)
+   * @param email The email (null if not change)
+   * @param firstName The first name (null if not change)
+   * @param lastName The last name (null if not change)
+   */
+  public void editUser(String userId, String oldpassword, String newPassword, String email, String firstName, String lastName);
+  
+  /**
    * Delete a user
    * @param userId The user id to delete
    */

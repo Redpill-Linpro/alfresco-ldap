@@ -24,7 +24,7 @@ objectClass: organizationalPerson
 objectClass: inetOrgPerson
 cn: Marge Simpson
 sn: Simpson
-mail: marge@simpsons.com
+mail: marge@simpson.com
 uid: marge
 userPassword: {SSHA}02viRdWWFw5XnhQR4VPgZGpt+9Ej4Axd
 
@@ -35,7 +35,7 @@ objectClass: organizationalPerson
 objectClass: inetOrgPerson
 cn: Homer Simpson
 sn: Simpson
-mail: homer@simpsons.com
+mail: homer@simpson.com
 uid: homer
 userPassword: {SSHA}02viRdWWFw5XnhQR4VPgZGpt+9Ej4Axd
 
@@ -46,7 +46,7 @@ objectClass: organizationalPerson
 objectClass: inetOrgPerson
 cn: Bart Simpson
 sn: Simpson
-mail: bart@simpsons.com
+mail: bart@simpson.com
 uid: bart
 userPassword: {SSHA}02viRdWWFw5XnhQR4VPgZGpt+9Ej4Axd
 
@@ -57,7 +57,7 @@ objectClass: organizationalPerson
 objectClass: inetOrgPerson
 cn: Lisa Simpson
 sn: Simpson
-mail: lisa@simpsons.com
+mail: lisa@simpson.com
 uid: lisa
 userPassword: {SSHA}02viRdWWFw5XnhQR4VPgZGpt+9Ej4Axd
 
@@ -68,7 +68,7 @@ objectClass: organizationalPerson
 objectClass: inetOrgPerson
 cn: Maggie Simpson
 sn: Simpson
-mail: maggie@simpsons.com
+mail: maggie@simpson.com
 uid: maggie
 userPassword: {SSHA}02viRdWWFw5XnhQR4VPgZGpt+9Ej4Axd
 
