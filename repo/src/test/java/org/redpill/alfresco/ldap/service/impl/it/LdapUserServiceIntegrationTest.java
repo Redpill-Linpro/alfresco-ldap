@@ -1,6 +1,7 @@
 package org.redpill.alfresco.ldap.service.impl.it;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.alfresco.repo.security.authentication.AuthenticationException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -24,9 +25,9 @@ public class LdapUserServiceIntegrationTest extends AbstractLdapRepoIntegrationT
   private static final String USER_MONA = "mona";
   private static final String USER_TUT = "tut";
   private static final String USER_HAPPY = "happy";
-  
+
   @Test
-  public void testUserChangePassword() {
+  public void testChangePasswordAsUser() {
     _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
     assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
     ldapUserService.changePassword(USER_LISA, DEFAULT_PASSWORD, CHANGED_PASSWORD);
@@ -38,7 +39,7 @@ public class LdapUserServiceIntegrationTest extends AbstractLdapRepoIntegrationT
   }
 
   @Test
-  public void testSystemChangePassword() {
+  public void testChangePasswordAsSystem() {
     _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
     assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
     ldapUserService.changePassword(USER_LISA, null, CHANGED_PASSWORD);
@@ -51,13 +52,13 @@ public class LdapUserServiceIntegrationTest extends AbstractLdapRepoIntegrationT
 
   @Test
   public void testSystemAddUser() {
-    _testSystemAddUser(USER_ABRAHAM);
+    _testAddUserAsSystem(USER_ABRAHAM);
   }
 
-  protected void _testSystemAddUser(String user) {
+  protected void _testAddUserAsSystem(String user) {
     _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
     assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
-    ldapUserService.createUser(user, DEFAULT_PASSWORD, user + "@simpson.com", StringUtils.capitalise(user), "Simpson");
+    ldapUserService.createUser(user, DEFAULT_PASSWORD, user + "@simpson.com", StringUtils.capitalize(user), "Simpson");
     _authenticationService.authenticate(user, DEFAULT_PASSWORD.toCharArray());
     assertEquals(user, AuthenticationUtil.getFullyAuthenticatedUser());
     _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
@@ -65,8 +66,8 @@ public class LdapUserServiceIntegrationTest extends AbstractLdapRepoIntegrationT
   }
 
   @Test
-  public void testSystemDeleteUser() {
-    _testSystemAddUser(USER_MONA);
+  public void testDeleteUserAsSystem() {
+    _testAddUserAsSystem(USER_MONA);
     _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
     assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
     ldapUserService.deleteUser(USER_MONA);
@@ -79,16 +80,16 @@ public class LdapUserServiceIntegrationTest extends AbstractLdapRepoIntegrationT
   }
 
   @Test
-  public void testSystemEditUser() {
-    _testSystemAddUser(USER_TUT);
+  public void testUserEditAsSystem() {
+    _testAddUserAsSystem(USER_TUT);
     _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
     assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
     ldapUserService.editUser(USER_TUT, null, null, null, "Tut2", "Simpson2");
   }
-  
+
   @Test
-  public void testUserEditUser() {
-    _testSystemAddUser(USER_HAPPY);
+  public void testUserEditAsUser() {
+    _testAddUserAsSystem(USER_HAPPY);
     _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
     assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
     ldapUserService.editUser(USER_HAPPY, DEFAULT_PASSWORD, CHANGED_PASSWORD, "happy2@simpson.com", null, null);
