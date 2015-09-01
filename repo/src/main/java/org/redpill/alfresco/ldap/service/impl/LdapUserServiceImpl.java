@@ -203,10 +203,6 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
     this.contextSource = contextSource;
   }
 
-  public void setLdapTemplate(LdapTemplate ldapTemplate) {
-    this.ldapTemplate = ldapTemplate;
-  }
-
   public void setPasswordAttributeName(String passwordAttributeName) {
     this.passwordAttributeName = passwordAttributeName;
   }

@@ -23,6 +23,7 @@ public class LdapUserServiceIntegrationTest extends AbstractLdapRepoIntegrationT
   private static final String USER_ABRAHAM = "abraham";
   private static final String USER_MONA = "mona";
   private static final String USER_TUT = "tut";
+  private static final String USER_HAPPY = "happy";
   
   @Test
   public void testUserChangePassword() {
@@ -83,8 +84,14 @@ public class LdapUserServiceIntegrationTest extends AbstractLdapRepoIntegrationT
     _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
     assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
     ldapUserService.editUser(USER_TUT, null, null, "tut2@simpson.com", "Tut2", "Simpson2");
-    
-    
+  }
+  
+  @Test
+  public void testUserEditUser() {
+    _testSystemAddUser(USER_HAPPY);
+    _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+    assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
+    ldapUserService.editUser(USER_HAPPY, DEFAULT_PASSWORD, null, "happy2@simpson.com", null, null);
   }
 
 }
