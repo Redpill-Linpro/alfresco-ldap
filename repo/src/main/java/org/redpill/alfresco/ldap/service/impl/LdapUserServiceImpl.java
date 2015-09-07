@@ -16,7 +16,6 @@ import javax.naming.ldap.LdapContext;
 
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.security.authentication.AuthenticationException;
-import org.apache.http.impl.auth.UnsupportedDigestAlgorithmException;
 import org.apache.log4j.Logger;
 import org.redpill.alfresco.ldap.service.LdapUserService;
 import org.redpill.alfresco.ldap.util.LdapServiceUtils;
@@ -29,6 +28,13 @@ import org.springframework.security.ldap.LdapUsernameToDnMapper;
 import org.springframework.security.ldap.LdapUtils;
 import org.springframework.util.Assert;
 
+/**
+ * Ldap user service - implementation for service which manages users in a ldap
+ * catalogue
+ * 
+ * @author Marcus Svartmark - Redpill Linpro AB
+ *
+ */
 public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
   private static final Logger logger = Logger.getLogger(LdapUserServiceImpl.class);
   private LdapTemplate ldapTemplate;
@@ -180,13 +186,18 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
     final DistinguishedName dn = usernameMapper.buildDn(userId);
     ldapTemplate.unbind(dn);
   }
-  
+
   /**
-   * Convenience method to generate password. Algorithm is configured in alfresco-global.properties
-   * @param password The password to encode
+   * Convenience method to generate password. Algorithm is configured in
+   * alfresco-global.properties
+   * 
+   * @param password
+   *          The password to encode
    * @return An encoded password
-   * @throws NoSuchAlgorithmException Is thrown if an unsupported encryption algorithm is detected
-   * @throws UnsupportedEncodingException Is thrown if the password is encoded in something other than UTF8
+   * @throws NoSuchAlgorithmException
+   *           Is thrown if an unsupported encryption algorithm is detected
+   * @throws UnsupportedEncodingException
+   *           Is thrown if the password is encoded in something other than UTF8
    */
   protected String generatePassword(String password) throws NoSuchAlgorithmException, UnsupportedEncodingException {
     if ("ssha".equalsIgnoreCase(passwordAlgorithm)) {
@@ -194,9 +205,9 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
     } else if ("sha".equalsIgnoreCase(passwordAlgorithm)) {
       return LdapServiceUtils.hashSHAPassword(password);
     } else if ("md5".equalsIgnoreCase(passwordAlgorithm)) {
-      return generatePassword(password);
+      return LdapServiceUtils.hashMD5Password(password);
     } else {
-      throw new NoSuchAlgorithmException("Unsupported algorithm "+passwordAlgorithm);
+      throw new NoSuchAlgorithmException("Unsupported algorithm " + passwordAlgorithm);
     }
   }
 
@@ -231,7 +242,7 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
 
   public void setObjectClasses(String objectClasses) {
     String[] split = objectClasses.split(",");
-    for (int i=0;i<split.length;i++) {
+    for (int i = 0; i < split.length; i++) {
       split[i] = split[i].trim();
     }
     this.objectClasses = split;
@@ -248,11 +259,11 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
   public void setMailAttributeName(String mailAttributeName) {
     this.mailAttributeName = mailAttributeName;
   }
-  
+
   public void setCnAttributeName(String cnAttributeName) {
     this.cnAttributeName = cnAttributeName;
   }
-  
+
   public void setUserIdAttributeName(String userIdAttributeName) {
     this.userIdAttributeName = userIdAttributeName;
   }
@@ -260,6 +271,5 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
   public void setPasswordAlgorithm(String passwordAlgorithm) {
     this.passwordAlgorithm = passwordAlgorithm;
   }
-  
 
 }

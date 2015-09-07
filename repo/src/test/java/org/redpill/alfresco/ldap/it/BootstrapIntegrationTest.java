@@ -6,6 +6,6 @@ public class BootstrapIntegrationTest extends AbstractLdapRepoIntegrationTest {
 
   @Test
   public void testNothing() {
-    
+
   }
 }

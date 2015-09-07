@@ -10,11 +10,12 @@ import org.springframework.security.crypto.codec.Base64;
 
 /**
  * Common ldap utils
+ * 
  * @author Marcus Svartmark - Redpill Linpro
  *
  */
 public class LdapServiceUtils {
-  
+
   /**
    * Hash a password with md5 for LDAP
    * 
@@ -28,7 +29,7 @@ public class LdapServiceUtils {
     String md5Password = new String(Base64.encode(digest.digest()));
     return "{MD5}" + md5Password;
   }
-  
+
   /**
    * Hash a password with sha for LDAP
    * 
@@ -40,7 +41,7 @@ public class LdapServiceUtils {
     LdapShaPasswordEncoder shaEncoder = new LdapShaPasswordEncoder();
     return shaEncoder.encodePassword(newPassword, null);
   }
-  
+
   /**
    * Hash a password with ssha for LDAP
    * 

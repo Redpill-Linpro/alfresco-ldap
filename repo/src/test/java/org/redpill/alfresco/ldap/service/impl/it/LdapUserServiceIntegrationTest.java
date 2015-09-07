@@ -3,12 +3,14 @@ package org.redpill.alfresco.ldap.service.impl.it;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.security.authentication.AuthenticationException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.redpill.alfresco.ldap.it.AbstractLdapRepoIntegrationTest;
 import org.redpill.alfresco.ldap.service.LdapUserService;
+import org.redpill.alfresco.ldap.service.impl.LdapUserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -48,6 +50,59 @@ public class LdapUserServiceIntegrationTest extends AbstractLdapRepoIntegrationT
     _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
     ldapUserService.changePassword(USER_LISA, null, DEFAULT_PASSWORD);
     assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
+  }
+
+  @Test
+  public void testPasswordAlgorithms() {
+    // Change to SHA
+    _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+    assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
+    ((LdapUserServiceImpl) ldapUserService).setPasswordAlgorithm("sha");
+    ldapUserService.changePassword(USER_LISA, null, CHANGED_PASSWORD);
+    _authenticationService.authenticate(USER_LISA, CHANGED_PASSWORD.toCharArray());
+    assertEquals(USER_LISA, AuthenticationUtil.getFullyAuthenticatedUser());
+    // Reset
+    _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+    ldapUserService.changePassword(USER_LISA, null, DEFAULT_PASSWORD);
+    assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
+
+    // Change to SSHA
+    _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+    assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
+    ((LdapUserServiceImpl) ldapUserService).setPasswordAlgorithm("ssha");
+    ldapUserService.changePassword(USER_LISA, null, CHANGED_PASSWORD);
+    _authenticationService.authenticate(USER_LISA, CHANGED_PASSWORD.toCharArray());
+    assertEquals(USER_LISA, AuthenticationUtil.getFullyAuthenticatedUser());
+    // Reset
+    _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+    ldapUserService.changePassword(USER_LISA, null, DEFAULT_PASSWORD);
+    assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
+
+    // Change to MD5
+    _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+    assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
+    ((LdapUserServiceImpl) ldapUserService).setPasswordAlgorithm("md5");
+    ldapUserService.changePassword(USER_LISA, null, CHANGED_PASSWORD);
+    _authenticationService.authenticate(USER_LISA, CHANGED_PASSWORD.toCharArray());
+    assertEquals(USER_LISA, AuthenticationUtil.getFullyAuthenticatedUser());
+    // Reset
+    _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+    ldapUserService.changePassword(USER_LISA, null, DEFAULT_PASSWORD);
+    assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
+
+    // Change to unsupported
+    _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+    assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
+    ((LdapUserServiceImpl) ldapUserService).setPasswordAlgorithm("unsupported");
+    try {
+      ldapUserService.changePassword(USER_LISA, null, CHANGED_PASSWORD);
+      assertTrue("Shoudl receive exception", false);
+    } catch (AlfrescoRuntimeException e) {
+
+    }
+    
+    //Reset to default
+    ((LdapUserServiceImpl) ldapUserService).setPasswordAlgorithm("ssha");
   }
 
   @Test
