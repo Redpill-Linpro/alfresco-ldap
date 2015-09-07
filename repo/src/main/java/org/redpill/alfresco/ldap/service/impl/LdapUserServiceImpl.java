@@ -16,6 +16,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.security.authentication.AuthenticationException;
+import org.apache.http.impl.auth.UnsupportedDigestAlgorithmException;
 import org.apache.log4j.Logger;
 import org.redpill.alfresco.ldap.service.LdapUserService;
 import org.redpill.alfresco.ldap.util.LdapServiceUtils;
@@ -40,6 +41,7 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
   private String snAttributeName;
   private String mailAttributeName;
   private LdapUsernameToDnMapper usernameMapper;
+  private String passwordAlgorithm;
 
   @Override
   public void changePassword(final String userId, final String oldPassword, final String newPassword) {
@@ -47,7 +49,7 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
     logger.debug("Changing password for user " + userId);
     String hashedPassword = newPassword;
     try {
-      hashedPassword = LdapServiceUtils.hashMD5Password(newPassword);
+      hashedPassword = generatePassword(newPassword);
     } catch (NoSuchAlgorithmException | UnsupportedEncodingException e1) {
       logger.error(e1);
       throw new AlfrescoRuntimeException("Error hashing password", e1);
@@ -64,7 +66,7 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
     logger.debug("Creating user " + userId);
     String hashedPassword = "";
     try {
-      hashedPassword = LdapServiceUtils.hashMD5Password(password);
+      hashedPassword = generatePassword(password);
     } catch (NoSuchAlgorithmException | UnsupportedEncodingException e1) {
       logger.error(e1);
       throw new AlfrescoRuntimeException("Error hashing password", e1);
@@ -100,7 +102,7 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
     if (newPassword != null) {
       String hashedPassword = newPassword;
       try {
-        hashedPassword = LdapServiceUtils.hashMD5Password(newPassword);
+        hashedPassword = generatePassword(newPassword);
         modItems.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(passwordAttributeName, hashedPassword)));
       } catch (NoSuchAlgorithmException | UnsupportedEncodingException e1) {
         logger.error(e1);
@@ -178,6 +180,25 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
     final DistinguishedName dn = usernameMapper.buildDn(userId);
     ldapTemplate.unbind(dn);
   }
+  
+  /**
+   * Convenience method to generate password. Algorithm is configured in alfresco-global.properties
+   * @param password The password to encode
+   * @return An encoded password
+   * @throws NoSuchAlgorithmException Is thrown if an unsupported encryption algorithm is detected
+   * @throws UnsupportedEncodingException Is thrown if the password is encoded in something other than UTF8
+   */
+  protected String generatePassword(String password) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+    if ("ssha".equalsIgnoreCase(passwordAlgorithm)) {
+      return LdapServiceUtils.hashSSHAPassword(password);
+    } else if ("sha".equalsIgnoreCase(passwordAlgorithm)) {
+      return LdapServiceUtils.hashSHAPassword(password);
+    } else if ("md5".equalsIgnoreCase(passwordAlgorithm)) {
+      return generatePassword(password);
+    } else {
+      throw new NoSuchAlgorithmException("Unsupported algorithm "+passwordAlgorithm);
+    }
+  }
 
   @Override
   public void afterPropertiesSet() throws Exception {
@@ -191,6 +212,7 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
     Assert.notNull(userIdAttributeName);
     Assert.notNull(objectClasses);
     Assert.notEmpty(objectClasses);
+    Assert.notNull(passwordAlgorithm);
     ldapTemplate = new LdapTemplate(contextSource);
     logger.info("Initalized " + this.getClass().getName());
   }
@@ -233,6 +255,10 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
   
   public void setUserIdAttributeName(String userIdAttributeName) {
     this.userIdAttributeName = userIdAttributeName;
+  }
+
+  public void setPasswordAlgorithm(String passwordAlgorithm) {
+    this.passwordAlgorithm = passwordAlgorithm;
   }
   
 

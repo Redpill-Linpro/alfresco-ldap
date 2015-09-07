@@ -24,5 +24,6 @@
     <property name="mailAttributeName" value="${ldapMgr.mailAttributeName}" />
     <property name="userIdAttributeName" value="${ldapMgr.userIdAttributeName}" />
     <property name="objectClasses" value="${ldapMgr.objectClasses}" />
+    <property name="passwordAlgorithm" value="${ldapMgr.passwordAlgorithm}" />
   </bean>
 </beans>
