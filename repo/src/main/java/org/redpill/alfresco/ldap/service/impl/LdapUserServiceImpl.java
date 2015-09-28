@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 import org.redpill.alfresco.ldap.service.LdapUserService;
 import org.redpill.alfresco.ldap.util.LdapServiceUtils;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.ldap.NameAlreadyBoundException;
 import org.springframework.ldap.core.ContextExecutor;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DistinguishedName;
@@ -68,14 +69,22 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
 
   @Override
   public void createUser(final String userId, final String password, final String email, final String firstName, final String lastName) {
+    createUser(userId, password, false, email, firstName, lastName);
+  }
+
+  @Override
+  public void createUser(final String userId, final String password, boolean doNotHash, final String email, final String firstName, final String lastName) {
 
     logger.debug("Creating user " + userId);
-    String hashedPassword = "";
-    try {
-      hashedPassword = generatePassword(password);
-    } catch (NoSuchAlgorithmException | UnsupportedEncodingException e1) {
-      logger.error(e1);
-      throw new AlfrescoRuntimeException("Error hashing password", e1);
+    String hashedPassword = password;
+    if (!doNotHash) {
+
+      try {
+        hashedPassword = generatePassword(password);
+      } catch (NoSuchAlgorithmException | UnsupportedEncodingException e1) {
+        logger.error(e1);
+        throw new AlfrescoRuntimeException("Error hashing password", e1);
+      }
     }
 
     Attributes personAttributes = new BasicAttributes();
@@ -93,9 +102,16 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
     personAttributes.put(mailAttributeName, email);
 
     final DistinguishedName dn = usernameMapper.buildDn(userId);
-
-    ldapTemplate.bind(dn, null, personAttributes);
-
+    try {
+      ldapTemplate.bind(dn, null, personAttributes);
+    } 
+    catch (NameAlreadyBoundException e1) {
+      logger.debug("User already exist in ldap, aborting creation.", e1);
+    }
+    catch (Exception e) {
+      logger.error(e.getMessage(), e);
+      throw e;
+    }
   }
 
   @Override

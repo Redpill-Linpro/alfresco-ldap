@@ -39,6 +39,26 @@ public interface LdapUserService {
   public void createUser(String userId, String password, String email, String firstName, String lastName);
 
   /**
+   * Create a user
+   * 
+   * @param userId
+   *          The user id
+   * @param password
+   *          The password
+   * @param doNotHash
+   *          Toggle hashing of password. If not used, the client is responsible
+   *          for hashing (or not) and putting a password in the correct format
+   *          in the variable
+   * @param email
+   *          The email
+   * @param firstName
+   *          The first name
+   * @param lastName
+   *          The last name
+   */
+  public void createUser(String userId, String password, boolean doNotHash, String email, String firstName, String lastName);
+
+  /**
    * Modify a user
    * 
    * @param userId
@@ -64,4 +84,5 @@ public interface LdapUserService {
    *          The user id to delete
    */
   public void deleteUser(String userId);
+
 }
