@@ -17,9 +17,11 @@ import javax.naming.ldap.LdapContext;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.security.authentication.AuthenticationException;
 import org.apache.log4j.Logger;
+import org.redpill.alfresco.ldap.exception.PasswordDoesNotConformToPolicy;
 import org.redpill.alfresco.ldap.service.LdapUserService;
 import org.redpill.alfresco.ldap.util.LdapServiceUtils;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.ldap.InvalidAttributeValueException;
 import org.springframework.ldap.NameAlreadyBoundException;
 import org.springframework.ldap.core.ContextExecutor;
 import org.springframework.ldap.core.ContextSource;
@@ -31,7 +33,9 @@ import org.springframework.util.Assert;
 
 /**
  * Ldap user service - implementation for service which manages users in a ldap
- * catalogue
+ * catalogue.
+ * 
+ * Active Directory resource: http://wetfeetblog.com/spring-ldap-microsoft-ad/60
  * 
  * @author Marcus Svartmark - Redpill Linpro AB
  *
@@ -49,12 +53,13 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
   private String mailAttributeName;
   private LdapUsernameToDnMapper usernameMapper;
   private String passwordAlgorithm;
+  private String cnBasedOn;
 
   @Override
   public void changePassword(final String userId, final String oldPassword, final String newPassword) {
 
     logger.debug("Changing password for user " + userId);
-    String hashedPassword = newPassword;
+    Object hashedPassword = newPassword;
     try {
       hashedPassword = generatePassword(newPassword);
     } catch (NoSuchAlgorithmException | UnsupportedEncodingException e1) {
@@ -63,8 +68,15 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
     }
 
     final ModificationItem[] modItems = new ModificationItem[] { new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(passwordAttributeName, hashedPassword)) };
-
-    executeUpdate(userId, oldPassword, modItems);
+    try {
+      executeUpdate(userId, oldPassword, modItems);
+    } catch (InvalidAttributeValueException e) {
+      if (e.getMessage().contains("LDAP: error code 19") && e.getMessage().contains("unicodePwd") && e.getMessage().contains("CONSTRAINT_ATT_TYPE")) {
+        throw new PasswordDoesNotConformToPolicy(e);
+      } else {
+        throw e;
+      }
+    }
   }
 
   @Override
@@ -76,7 +88,7 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
   public void createUser(final String userId, final String password, boolean doNotHash, final String email, final String firstName, final String lastName) {
 
     logger.debug("Creating user " + userId);
-    String hashedPassword = password;
+    Object hashedPassword = password;
     if (!doNotHash) {
 
       try {
@@ -95,7 +107,13 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
     personAttributes.put(personBasicAttribute);
     personAttributes.put(userIdAttributeName, userId);
     personAttributes.put(givenNameAttributeName, firstName);
-    personAttributes.put(cnAttributeName, firstName);
+    if ("givenName".equalsIgnoreCase(cnBasedOn)) {
+      personAttributes.put(cnAttributeName, firstName);
+    } else if ("uid".equalsIgnoreCase(cnBasedOn)) {
+      personAttributes.put(cnAttributeName, userId);
+    } else {
+      throw new UnsupportedOperationException("Invalid mapping for CN");
+    }
     personAttributes.put(snAttributeName, lastName);
 
     personAttributes.put(passwordAttributeName, hashedPassword);
@@ -104,11 +122,9 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
     final DistinguishedName dn = usernameMapper.buildDn(userId);
     try {
       ldapTemplate.bind(dn, null, personAttributes);
-    } 
-    catch (NameAlreadyBoundException e1) {
+    } catch (NameAlreadyBoundException e1) {
       logger.debug("User already exist in ldap, aborting creation.", e1);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       logger.error(e.getMessage(), e);
       throw e;
     }
@@ -122,7 +138,7 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
     List<ModificationItem> modItems = new ArrayList<ModificationItem>();
 
     if (newPassword != null) {
-      String hashedPassword = newPassword;
+      Object hashedPassword = newPassword;
       try {
         hashedPassword = generatePassword(newPassword);
         modItems.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(passwordAttributeName, hashedPassword)));
@@ -215,13 +231,15 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
    * @throws UnsupportedEncodingException
    *           Is thrown if the password is encoded in something other than UTF8
    */
-  protected String generatePassword(String password) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+  protected Object generatePassword(String password) throws NoSuchAlgorithmException, UnsupportedEncodingException {
     if ("ssha".equalsIgnoreCase(passwordAlgorithm)) {
       return LdapServiceUtils.hashSSHAPassword(password);
     } else if ("sha".equalsIgnoreCase(passwordAlgorithm)) {
       return LdapServiceUtils.hashSHAPassword(password);
     } else if ("md5".equalsIgnoreCase(passwordAlgorithm)) {
       return LdapServiceUtils.hashMD5Password(password);
+    } else if ("ad".equalsIgnoreCase(passwordAlgorithm)) {
+      return LdapServiceUtils.hashADPassword(password);
     } else {
       throw new NoSuchAlgorithmException("Unsupported algorithm " + passwordAlgorithm);
     }
@@ -286,6 +304,10 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
 
   public void setPasswordAlgorithm(String passwordAlgorithm) {
     this.passwordAlgorithm = passwordAlgorithm;
+  }
+
+  public void setCnBasedOn(String cnBasedOn) {
+    this.cnBasedOn = cnBasedOn;
   }
 
 }

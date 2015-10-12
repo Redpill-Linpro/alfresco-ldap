@@ -11,7 +11,7 @@
 
   <bean id="rl.ldapUsernameMapper" class="org.springframework.security.ldap.DefaultLdapUsernameToDnMapper">
     <constructor-arg index="0" value="${ldapMgr.userSearchBase}" />
-    <constructor-arg index="1" value="${ldapMgr.userIdAttributeName}" />
+    <constructor-arg index="1" value="${ldapMgr.cnAttributeName}" />
   </bean>
 
   <bean id="rl.ldapUserService" class="org.redpill.alfresco.ldap.service.impl.LdapUserServiceImpl">
@@ -20,6 +20,7 @@
     <property name="passwordAttributeName" value="${ldapMgr.passwordAttributeName}" />
     <property name="givenNameAttributeName" value="${ldapMgr.givenNameAttributeName}" />
     <property name="cnAttributeName" value="${ldapMgr.cnAttributeName}" />
+    <property name="cnBasedOn" value="${ldapMgr.cnBasedOn}" />
     <property name="snAttributeName" value="${ldapMgr.snAttributeName}" />
     <property name="mailAttributeName" value="${ldapMgr.mailAttributeName}" />
     <property name="userIdAttributeName" value="${ldapMgr.userIdAttributeName}" />

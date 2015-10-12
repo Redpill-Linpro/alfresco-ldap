@@ -56,4 +56,9 @@ public class LdapServiceUtils {
     random.nextBytes(salt);
     return shaEncoder.encodePassword(newPassword, salt);
   }
+  
+  public static byte[] hashADPassword(final String newPassword) throws UnsupportedEncodingException {
+    String newQuotedPassword = "\"" + newPassword + "\"";
+    return newQuotedPassword.getBytes("UTF-16LE");
+  }
 }

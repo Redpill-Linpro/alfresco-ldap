@@ -17,7 +17,7 @@ objectClass: top
 objectClass: organizationalUnit
 ou: groups
 
-dn: uid=marge,ou=users,dc=test,dc=alfresco,dc=redpill,dc=org
+dn: cn=marge,ou=users,dc=test,dc=alfresco,dc=redpill,dc=org
 objectClass: top
 objectClass: person
 objectClass: organizationalPerson
@@ -28,7 +28,7 @@ mail: marge@simpson.com
 uid: marge
 userPassword: {SSHA}02viRdWWFw5XnhQR4VPgZGpt+9Ej4Axd
 
-dn: uid=homer,ou=users,dc=test,dc=alfresco,dc=redpill,dc=org
+dn: cn=homer,ou=users,dc=test,dc=alfresco,dc=redpill,dc=org
 objectClass: top
 objectClass: person
 objectClass: organizationalPerson
@@ -39,7 +39,7 @@ mail: homer@simpson.com
 uid: homer
 userPassword: {SSHA}02viRdWWFw5XnhQR4VPgZGpt+9Ej4Axd
 
-dn: uid=bart,ou=users,dc=test,dc=alfresco,dc=redpill,dc=org
+dn: cn=bart,ou=users,dc=test,dc=alfresco,dc=redpill,dc=org
 objectClass: top
 objectClass: person
 objectClass: organizationalPerson
@@ -50,7 +50,7 @@ mail: bart@simpson.com
 uid: bart
 userPassword: {SSHA}02viRdWWFw5XnhQR4VPgZGpt+9Ej4Axd
 
-dn: uid=lisa,ou=users,dc=test,dc=alfresco,dc=redpill,dc=org
+dn: cn=lisa,ou=users,dc=test,dc=alfresco,dc=redpill,dc=org
 objectClass: top
 objectClass: person
 objectClass: organizationalPerson
@@ -61,7 +61,7 @@ mail: lisa@simpson.com
 uid: lisa
 userPassword: {SSHA}02viRdWWFw5XnhQR4VPgZGpt+9Ej4Axd
 
-dn: uid=maggie,ou=users,dc=test,dc=alfresco,dc=redpill,dc=org
+dn: cn=maggie,ou=users,dc=test,dc=alfresco,dc=redpill,dc=org
 objectClass: top
 objectClass: person
 objectClass: organizationalPerson

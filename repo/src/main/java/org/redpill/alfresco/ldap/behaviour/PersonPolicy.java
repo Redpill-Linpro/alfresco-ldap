@@ -94,7 +94,11 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy {
       }
 
       if (AuthenticationUtil.getAdminUserName().equals(userId)) {
-        LOG.trace("Skipping admin user. Will not move to LDAP.");
+        LOG.info("Skipping admin user. Will not move to LDAP.");
+        result = true;
+      }
+      if (AuthenticationUtil.getSystemUserName().equals(userId) || (AuthenticationUtil.getSystemUserName()+"User").equals(userId)) {
+        LOG.info("Skipping sytem user. Will not move to LDAP.");
         result = true;
       }
     }
