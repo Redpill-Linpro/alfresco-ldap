@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.node.NodeServicePolicies.OnCreateNodePolicy;
+import org.alfresco.repo.node.NodeServicePolicies.OnUpdateNodePolicy;
 import org.alfresco.repo.node.NodeServicePolicies.OnUpdatePropertiesPolicy;
 import org.alfresco.repo.policy.Behaviour.NotificationFrequency;
 import org.alfresco.repo.policy.JavaBehaviour;
@@ -24,7 +25,7 @@ import org.springframework.util.Assert;
  * Attach additional information to the person object
  * 
  */
-public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, OnUpdatePropertiesPolicy {
+public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, OnUpdatePropertiesPolicy, OnUpdateNodePolicy {
 
   private static final Logger LOG = Logger.getLogger(PersonPolicy.class);
   private static Boolean initialized = false;
@@ -48,7 +49,6 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
     Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
     final String userId = (String) properties.get(ContentModel.PROP_USERNAME);
     String password = "{MD4}" + (String) properties.get(ContentModel.PROP_PASSWORD);
-    // LOG.error("PASSWORD: " + password);
     String email = (String) properties.get(ContentModel.PROP_EMAIL);
     if (email == null) {
       email = "";
@@ -168,9 +168,17 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
     if (!initialized) {
       LOG.info("Initialized policy");
       policyComponent.bindClassBehaviour(OnCreateNodePolicy.QNAME, ContentModel.TYPE_PERSON, new JavaBehaviour(this, "onCreateNode", NotificationFrequency.TRANSACTION_COMMIT));
+      policyComponent.bindClassBehaviour(OnUpdatePropertiesPolicy.QNAME, ContentModel.TYPE_PERSON, new JavaBehaviour(this, "onUpdateProperties", NotificationFrequency.TRANSACTION_COMMIT));
+      policyComponent.bindClassBehaviour(OnUpdateNodePolicy.QNAME, ContentModel.TYPE_PERSON, new JavaBehaviour(this, "onUpdateNode", NotificationFrequency.TRANSACTION_COMMIT));
 
       initialized = true;
     }
+  }
+
+  @Override
+  public void onUpdateNode(NodeRef nodeRef) {
+    LOG.trace("onUpdateNode begin");
+    LOG.trace("onUpdateNode end");
   }
 
 }

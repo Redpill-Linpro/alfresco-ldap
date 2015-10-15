@@ -162,7 +162,6 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
 
     if (firstName != null) {
       modItems.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(givenNameAttributeName, firstName)));
-      modItems.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(cnAttributeName, firstName)));
     }
 
     if (lastName != null) {
