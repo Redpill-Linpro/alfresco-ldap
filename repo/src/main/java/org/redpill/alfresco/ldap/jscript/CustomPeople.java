@@ -1,3 +1,4 @@
+// @overridden projects/repository/source/java/org/alfresco/repo/jscript/People.java
 package org.redpill.alfresco.ldap.jscript;
 
 import java.lang.reflect.InvocationTargetException;
