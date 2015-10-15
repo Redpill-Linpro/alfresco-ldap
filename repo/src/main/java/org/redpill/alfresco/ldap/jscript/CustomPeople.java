@@ -16,7 +16,8 @@ public class CustomPeople extends People {
   private static final Logger LOG = Logger.getLogger(CustomPeople.class);
   protected AuthorityService authorityService;
   protected String syncZoneId;
-
+  protected boolean enabled;
+  
   @Override
   public void setAuthorityService(AuthorityService authorityService) {
     this.authorityService = authorityService;
@@ -36,12 +37,16 @@ public class CustomPeople extends People {
     // get all the authority zones for the user
     Set<String> authorityZones = authorityService.getAuthorityZones(username);
 
-    if (authorityZones.contains("AUTH.EXT." + syncZoneId)) {
+    if (enabled && authorityZones.contains("AUTH.EXT." + syncZoneId)) {
       LOG.debug(username + " is in zone " + syncZoneId + " bypassing immutable properties");
       return new ScriptableHashMap();
     } else {
       return super.getImmutableProperties(username);
     }
+  }
+  
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
   }
 
   /**

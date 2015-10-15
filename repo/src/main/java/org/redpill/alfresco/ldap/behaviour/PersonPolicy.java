@@ -33,6 +33,7 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
   protected LdapUserService ldapUserService;
   protected AuthorityService authorityService;
   protected String syncZoneId;
+  protected boolean enabled;
 
   @Override
   public void onCreateNode(final ChildAssociationRef childAssocRef) {
@@ -96,6 +97,10 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
 
   private boolean shouldSkipUpdatePropertiesPolicy(NodeRef nodeRef, Map<QName, Serializable> before, Map<QName, Serializable> after) {
     boolean skip = super.shouldSkipPolicy(nodeRef);
+    if (!enabled) {
+      LOG.info("Skipping policy. LDAP Manager is disabled.");
+      skip = true;
+    }
     if (!skip) {
       if (!propertyChanged(before, after, ContentModel.PROP_EMAIL) && !propertyChanged(before, after, ContentModel.PROP_FIRSTNAME) && !propertyChanged(before, after, ContentModel.PROP_LASTNAME)) {
         LOG.trace("No ldap properties updated. Skipping property update in ldap.");
@@ -120,6 +125,10 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
 
   protected boolean shouldSkipCreatePolicy(NodeRef nodeRef) {
     boolean result = super.shouldSkipPolicy(nodeRef);
+    if (!enabled) {
+      LOG.info("Skipping policy. LDAP Manager is disabled.");
+      result = true;
+    }
     if (!result) {
       String userId = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_USERNAME);
       Set<String> authorityZones = authorityService.getAuthorityZones(userId);
@@ -157,6 +166,10 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
 
   public void setSyncZoneId(String syncZoneId) {
     this.syncZoneId = syncZoneId;
+  }
+  
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
   }
 
   @Override

@@ -49,7 +49,8 @@ public class CustomChangePasswordPost extends ChangePasswordPost implements Init
   private static final String PARAM_NEWPW = "newpw";
   private static final String PARAM_OLDPW = "oldpw";
   protected String syncZoneId;
-
+  protected boolean enabled;
+  
   protected LdapUserService ldapUserService;
   protected AuthorityService authorityService;
   protected MutableAuthenticationService authenticationService;
@@ -94,7 +95,7 @@ public class CustomChangePasswordPost extends ChangePasswordPost implements Init
       // get all the authority zones for the user
       Set<String> authorityZones = authorityService.getAuthorityZones(userName);
 
-      if (authorityZones.contains("AUTH.EXT." + syncZoneId)) {
+      if (enabled && authorityZones.contains("AUTH.EXT." + syncZoneId)) {
         // if the user is in the configured ${ldapMgr.syncZoneId} then it's an
         // LDAP user
         ldapUserService.changePassword(userName, oldPassword, newPassword);
@@ -139,6 +140,10 @@ public class CustomChangePasswordPost extends ChangePasswordPost implements Init
 
   public void setLdapUserService(LdapUserService ldapUserService) {
     this.ldapUserService = ldapUserService;
+  }
+  
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
   }
 
   @Override
