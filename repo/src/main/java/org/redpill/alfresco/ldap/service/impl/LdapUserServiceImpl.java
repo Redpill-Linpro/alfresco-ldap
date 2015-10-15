@@ -140,8 +140,16 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
     if (newPassword != null) {
       Object hashedPassword = newPassword;
       try {
-        hashedPassword = generatePassword(newPassword);
-        modItems.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(passwordAttributeName, hashedPassword)));
+        if (oldPassword == null) {
+          hashedPassword = generatePassword(newPassword);
+          modItems.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(passwordAttributeName, hashedPassword)));
+        } else {
+          //Active Directory require a remove/add if a user wants to change a password
+          Object oldPassword2 = generatePassword(oldPassword);
+          Object newPassword2 = generatePassword(newPassword);
+          modItems.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(passwordAttributeName, oldPassword2)));
+          modItems.add(new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute(passwordAttributeName, newPassword2)));
+        }
       } catch (NoSuchAlgorithmException | UnsupportedEncodingException e1) {
         logger.error(e1);
         throw new AlfrescoRuntimeException("Error hashing password", e1);

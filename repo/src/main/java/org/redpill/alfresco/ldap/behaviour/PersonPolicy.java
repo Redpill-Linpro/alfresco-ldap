@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.node.NodeServicePolicies.OnCreateNodePolicy;
+import org.alfresco.repo.node.NodeServicePolicies.OnUpdatePropertiesPolicy;
 import org.alfresco.repo.policy.Behaviour.NotificationFrequency;
 import org.alfresco.repo.policy.JavaBehaviour;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -23,7 +24,7 @@ import org.springframework.util.Assert;
  * Attach additional information to the person object
  * 
  */
-public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy {
+public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, OnUpdatePropertiesPolicy {
 
   private static final Logger LOG = Logger.getLogger(PersonPolicy.class);
   private static Boolean initialized = false;
@@ -34,25 +35,27 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy {
 
   @Override
   public void onCreateNode(final ChildAssociationRef childAssocRef) {
+    LOG.trace("onCreateNode begin");
     final NodeRef nodeRef = childAssocRef.getChildRef();
 
-    if (!shouldSkipPolicy(nodeRef)) {
+    if (!shouldSkipCreatePolicy(nodeRef)) {
       addUserToLdap(nodeRef);
     }
+    LOG.trace("onCreateNode end");
   }
 
   protected void addUserToLdap(NodeRef nodeRef) {
     Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
     final String userId = (String) properties.get(ContentModel.PROP_USERNAME);
     String password = "{MD4}" + (String) properties.get(ContentModel.PROP_PASSWORD);
-    //LOG.error("PASSWORD: " + password);
+    // LOG.error("PASSWORD: " + password);
     String email = (String) properties.get(ContentModel.PROP_EMAIL);
     if (email == null) {
       email = "";
     }
     String firstName = (String) properties.get(ContentModel.PROP_FIRSTNAME);
     String lastName = (String) properties.get(ContentModel.PROP_LASTNAME);
-    ldapUserService.createUser(userId, password, email, firstName, lastName);
+    ldapUserService.createUser(userId, password, true, email, firstName, lastName);
 
     // Add user to zone
     final String zoneName = AuthorityService.ZONE_AUTH_EXT_PREFIX + syncZoneId;
@@ -76,7 +79,46 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy {
     }
   }
 
-  protected boolean shouldSkipPolicy(NodeRef nodeRef) {
+  @Override
+  public void onUpdateProperties(NodeRef nodeRef, Map<QName, Serializable> before, Map<QName, Serializable> after) {
+    LOG.trace("onUpdateProperties begin");
+
+    if (!shouldSkipUpdatePropertiesPolicy(nodeRef, before, after)) {
+      updateUserInLdap(nodeRef, after);
+    }
+    LOG.trace("onUpdateProperties end");
+  }
+
+  protected void updateUserInLdap(NodeRef nodeRef, Map<QName, Serializable> after) {
+    ldapUserService.editUser((String) after.get(ContentModel.PROP_USERNAME), null, null, (String) after.get(ContentModel.PROP_EMAIL), (String) after.get(ContentModel.PROP_FIRSTNAME),
+        (String) after.get(ContentModel.PROP_LASTNAME));
+  }
+
+  private boolean shouldSkipUpdatePropertiesPolicy(NodeRef nodeRef, Map<QName, Serializable> before, Map<QName, Serializable> after) {
+    boolean skip = super.shouldSkipPolicy(nodeRef);
+    if (!skip) {
+      if (!propertyChanged(before, after, ContentModel.PROP_EMAIL) && !propertyChanged(before, after, ContentModel.PROP_FIRSTNAME) && !propertyChanged(before, after, ContentModel.PROP_LASTNAME)) {
+        LOG.trace("No ldap properties updated. Skipping property update in ldap.");
+        skip = true;
+      } else {
+        String userId = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_USERNAME);
+        Set<String> authorityZones = authorityService.getAuthorityZones(userId);
+        if (!authorityZones.contains("AUTH.EXT." + syncZoneId)) {
+          LOG.trace("User is not part of " + "AUTH.EXT." + syncZoneId + " zone. Skipping property update in ldap.");
+          skip = true;
+        }
+      }
+    }
+    return skip;
+  }
+
+  protected boolean propertyChanged(Map<QName, Serializable> before, Map<QName, Serializable> after, QName property) {
+    Serializable a = (before == null) ? null : before.get(property);
+    Serializable b = (after == null) ? null : after.get(property);
+    return ((a != null && !a.equals(b)) || (a == null && b != null));
+  }
+
+  protected boolean shouldSkipCreatePolicy(NodeRef nodeRef) {
     boolean result = super.shouldSkipPolicy(nodeRef);
     if (!result) {
       String userId = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_USERNAME);
@@ -97,7 +139,7 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy {
         LOG.info("Skipping admin user. Will not move to LDAP.");
         result = true;
       }
-      if (AuthenticationUtil.getSystemUserName().equals(userId) || (AuthenticationUtil.getSystemUserName()+"User").equals(userId)) {
+      if (AuthenticationUtil.getSystemUserName().equals(userId) || (AuthenticationUtil.getSystemUserName() + "User").equals(userId)) {
         LOG.info("Skipping sytem user. Will not move to LDAP.");
         result = true;
       }
@@ -130,4 +172,5 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy {
       initialized = true;
     }
   }
+
 }
