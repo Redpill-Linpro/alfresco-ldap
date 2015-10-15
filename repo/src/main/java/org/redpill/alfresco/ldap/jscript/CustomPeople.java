@@ -52,7 +52,7 @@ public class CustomPeople extends People {
    * @throws IllegalArgumentException
    * @throws IllegalAccessException
    */
-
+/*
   public void setHonorHintUseCQ2(boolean honorHintUseCQ) {
     Method[] methods = People.class.getMethods();
     for (Method method : methods) {
@@ -66,7 +66,7 @@ public class CustomPeople extends People {
       }
     }
   }
-
+*/
   public void setHonorHintUseCQ2(String honorHintUseCQ) {
     Method[] methods = People.class.getMethods();
     for (Method method : methods) {
