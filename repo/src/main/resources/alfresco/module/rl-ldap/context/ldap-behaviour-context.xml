@@ -13,6 +13,8 @@
   <bean id="rl.ldapPersonPolicy" class="org.redpill.alfresco.ldap.behaviour.PersonPolicy" depends-on="dictionaryBootstrap" parent="rl.ldapAbstractPolicy">
     <property name="ldapUserService" ref="rl.ldapUserService" />
     <property name="authorityService" ref="AuthorityService" />
+    <property name="tenantService" ref="tenantService" />
+    <property name="namespacePrefixResolver" ref="NamespaceService" />
     <property name="syncZoneId" value="${ldapMgr.syncZoneId}" />
     <property name="enabled" value="${ldapMgr.enabled}" />
   </bean>

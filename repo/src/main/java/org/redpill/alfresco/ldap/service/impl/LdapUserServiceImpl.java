@@ -124,9 +124,13 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
       ldapTemplate.bind(dn, null, personAttributes);
     } catch (NameAlreadyBoundException e1) {
       logger.debug("User already exist in ldap, aborting creation.", e1);
-    } catch (Exception e) {
-      logger.error(e.getMessage(), e);
-      throw e;
+    } 
+    catch (Exception e) {
+      if (e.getMessage().contains("LDAP: error code 19") && e.getMessage().contains("unicodePwd") && e.getMessage().contains("CONSTRAINT_ATT_TYPE")) {
+        throw new PasswordDoesNotConformToPolicy(e);
+      } else {
+        throw e;
+      }
     }
   }
 
