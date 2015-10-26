@@ -62,7 +62,7 @@ public class CustomChangePasswordPost extends ChangePasswordPost implements Init
    * org.alfresco.repo.web.scripts.person.ChangePasswordPost#executeImpl(org.alfresco.web.scripts.WebScriptRequest, org.alfresco.web.scripts.Status)
    */
   @Override
-  protected Map<String, Object> executeImpl(WebScriptRequest req, Status status) {
+  public Map<String, Object> executeImpl(WebScriptRequest req, Status status) {
     // Extract user name from the URL - cannot be null or webscript desc would
     // not match
     String userName = req.getExtensionPath();
@@ -116,11 +116,12 @@ public class CustomChangePasswordPost extends ChangePasswordPost implements Init
       // update the password
       // an Admin user can update without knowing the original pass - but must
       // know their own!
+      /*
       if (!isAdmin || (userName.equalsIgnoreCase(authenticationService.getCurrentUserName()))) {
         authenticationService.updateAuthentication(userName, oldPassword.toCharArray(), newPassword.toCharArray());
       } else {
         authenticationService.setAuthentication(userName, newPassword.toCharArray());
-      }
+      }*/
     } catch (AuthenticationException err) {
       throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Do not have appropriate auth or wrong auth details provided.");
     } catch (JSONException jErr) {
