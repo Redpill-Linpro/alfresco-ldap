@@ -63,50 +63,53 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
 
     Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
     final String userId = (String) properties.get(ContentModel.PROP_USERNAME);
-    String password = "{MD4}" + (String) properties.get(ContentModel.PROP_PASSWORD);
+    final String password = "{MD4}" + (String) properties.get(ContentModel.PROP_PASSWORD);
     String email = (String) properties.get(ContentModel.PROP_EMAIL);
     if (email == null) {
       email = "";
     }
-    String firstName = (String) properties.get(ContentModel.PROP_FIRSTNAME);
-    String lastName = (String) properties.get(ContentModel.PROP_LASTNAME);
-
-    NodeRef userInUserStoreNodeRef = getUserOrNull(userId);
-    if (userInUserStoreNodeRef != null && nodeService.hasAspect(userInUserStoreNodeRef, RlLdapModel.ASPECT_TEMPORARY_PASSWORD)) {
-      password = (String) nodeService.getProperty(userInUserStoreNodeRef, RlLdapModel.PROP_TEMPORARY_PASSWORD);
-      ldapUserService.createUser(userId, password, false, email, firstName, lastName);
-      boolean enabled = behaviourFilter.isEnabled(userInUserStoreNodeRef);
-      if (enabled)
-        behaviourFilter.disableBehaviour(userInUserStoreNodeRef);
-      // Remove the aspect and its properties
-      LOG.trace("Removing temporary password aspect for user " + userId);
-      nodeService.removeAspect(userInUserStoreNodeRef, RlLdapModel.ASPECT_TEMPORARY_PASSWORD);
-      if (enabled)
-        behaviourFilter.enableBehaviour(userInUserStoreNodeRef);
-    } else {
-      ldapUserService.createUser(userId, password, true, email, firstName, lastName);
-    }
-
-    // Add user to zone
-    final String zoneName = AuthorityService.ZONE_AUTH_EXT_PREFIX + syncZoneId;
-    final Set<String> zones = new HashSet<String>();
-    zones.add(zoneName);
+    final String finalEmail = email;
+    final String firstName = (String) properties.get(ContentModel.PROP_FIRSTNAME);
+   final  String lastName = (String) properties.get(ContentModel.PROP_LASTNAME);
 
     AuthenticationUtil.runAsSystem(new RunAsWork<Void>() {
 
       @Override
       public Void doWork() throws Exception {
 
+        NodeRef userInUserStoreNodeRef = getUserOrNull(userId);
+        String localPassword = password;
+        if (userInUserStoreNodeRef != null && nodeService.hasAspect(userInUserStoreNodeRef, RlLdapModel.ASPECT_TEMPORARY_PASSWORD)) {
+          localPassword = (String) nodeService.getProperty(userInUserStoreNodeRef, RlLdapModel.PROP_TEMPORARY_PASSWORD);
+          ldapUserService.createUser(userId, localPassword, false, finalEmail, firstName, lastName);
+          boolean enabled = behaviourFilter.isEnabled(userInUserStoreNodeRef);
+          if (enabled)
+            behaviourFilter.disableBehaviour(userInUserStoreNodeRef);
+          // Remove the aspect and its properties
+          LOG.trace("Removing temporary password aspect for user " + userId);
+          nodeService.removeAspect(userInUserStoreNodeRef, RlLdapModel.ASPECT_TEMPORARY_PASSWORD);
+          if (enabled)
+            behaviourFilter.enableBehaviour(userInUserStoreNodeRef);
+        } else {
+          ldapUserService.createUser(userId, localPassword, true, finalEmail, firstName, lastName);
+        }
+
+        // Add user to zone
+        final String zoneName = AuthorityService.ZONE_AUTH_EXT_PREFIX + syncZoneId;
+        final Set<String> zones = new HashSet<String>();
+        zones.add(zoneName);
+
         authorityService.getOrCreateZone(zoneName);
         authorityService.addAuthorityToZones(userId, zones);
 
+        if (LOG.isInfoEnabled()) {
+          LOG.info("Adding " + userId + " to zone " + zoneName);
+        }
         return null;
       }
     });
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Adding " + userId + " to zone " + zoneName);
-    }
+    
   }
 
   @Override
@@ -200,7 +203,7 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
         return null;
       }
     });
-    
+
   }
 
   private NodeRef getUserFolderLocation(String caseSensitiveUserName) {
