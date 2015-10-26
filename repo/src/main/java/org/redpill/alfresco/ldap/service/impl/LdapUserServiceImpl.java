@@ -21,7 +21,6 @@ import org.redpill.alfresco.ldap.exception.PasswordDoesNotConformToPolicy;
 import org.redpill.alfresco.ldap.service.LdapUserService;
 import org.redpill.alfresco.ldap.util.LdapServiceUtils;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.ldap.InvalidAttributeValueException;
 import org.springframework.ldap.NameAlreadyBoundException;
 import org.springframework.ldap.core.ContextExecutor;
 import org.springframework.ldap.core.ContextSource;
@@ -59,24 +58,19 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
   public void changePassword(final String userId, final String oldPassword, final String newPassword) {
 
     logger.debug("Changing password for user " + userId);
-    Object hashedPassword = newPassword;
-    try {
-      hashedPassword = generatePassword(newPassword);
-    } catch (NoSuchAlgorithmException | UnsupportedEncodingException e1) {
-      logger.error(e1);
-      throw new AlfrescoRuntimeException("Error hashing password", e1);
-    }
 
-    final ModificationItem[] modItems = new ModificationItem[] { new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(passwordAttributeName, hashedPassword)) };
-    try {
-      executeUpdate(userId, oldPassword, modItems);
-    } catch (InvalidAttributeValueException e) {
-      if (e.getMessage().contains("LDAP: error code 19") && e.getMessage().contains("unicodePwd") && e.getMessage().contains("CONSTRAINT_ATT_TYPE")) {
-        throw new PasswordDoesNotConformToPolicy(e);
-      } else {
-        throw e;
-      }
-    }
+    editUser(userId, oldPassword, newPassword, null, null, null);
+    /*
+     * final ModificationItem[] modItems = new ModificationItem[] { new
+     * ModificationItem(DirContext.REPLACE_ATTRIBUTE, new
+     * BasicAttribute(passwordAttributeName, hashedPassword)) }; try {
+     * executeUpdate(userId, oldPassword, modItems); } catch
+     * (InvalidAttributeValueException e) { if
+     * (e.getMessage().contains("LDAP: error code 19") &&
+     * e.getMessage().contains("unicodePwd") &&
+     * e.getMessage().contains("CONSTRAINT_ATT_TYPE")) { throw new
+     * PasswordDoesNotConformToPolicy(e); } else { throw e; } }
+     */
   }
 
   @Override
@@ -124,8 +118,7 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
       ldapTemplate.bind(dn, null, personAttributes);
     } catch (NameAlreadyBoundException e1) {
       logger.debug("User already exist in ldap, aborting creation.", e1);
-    } 
-    catch (Exception e) {
+    } catch (Exception e) {
       if (e.getMessage().contains("LDAP: error code 19") && e.getMessage().contains("unicodePwd") && e.getMessage().contains("CONSTRAINT_ATT_TYPE")) {
         throw new PasswordDoesNotConformToPolicy(e);
       } else {
@@ -142,18 +135,27 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
     List<ModificationItem> modItems = new ArrayList<ModificationItem>();
 
     if (newPassword != null) {
-      Object hashedPassword = newPassword;
       try {
-        if (oldPassword == null) {
+        // if (oldPassword == null) {
+        Object hashedPassword = newPassword;
+        try {
           hashedPassword = generatePassword(newPassword);
-          modItems.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(passwordAttributeName, hashedPassword)));
-        } else {
-          //Active Directory require a remove/add if a user wants to change a password
-          Object oldPassword2 = generatePassword(oldPassword);
-          Object newPassword2 = generatePassword(newPassword);
-          modItems.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(passwordAttributeName, oldPassword2)));
-          modItems.add(new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute(passwordAttributeName, newPassword2)));
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e1) {
+          logger.error(e1);
+          throw new AlfrescoRuntimeException("Error hashing password", e1);
         }
+        hashedPassword = generatePassword(newPassword);
+        modItems.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(passwordAttributeName, hashedPassword)));
+        /*
+         * } else { // Active Directory require a remove/add if a user wants to
+         * change a // password Object oldPassword2 =
+         * generatePassword(oldPassword); Object newPassword2 =
+         * generatePassword(newPassword); modItems.add(new
+         * ModificationItem(DirContext.REMOVE_ATTRIBUTE, new
+         * BasicAttribute(passwordAttributeName, oldPassword2)));
+         * modItems.add(new ModificationItem(DirContext.ADD_ATTRIBUTE, new
+         * BasicAttribute(passwordAttributeName, newPassword2))); }
+         */
       } catch (NoSuchAlgorithmException | UnsupportedEncodingException e1) {
         logger.error(e1);
         throw new AlfrescoRuntimeException("Error hashing password", e1);
@@ -188,39 +190,50 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
    */
   protected void executeUpdate(final String userId, final String password, final ModificationItem[] modItems) {
     final DistinguishedName dn = usernameMapper.buildDn(userId);
-    if (password == null) {
-      try {
-        ldapTemplate.modifyAttributes(dn, modItems);
-      } catch (Exception e) {
+
+    if (password != null) {
+      ldapTemplate.executeReadWrite(new ContextExecutor() {
+
+        public Object executeWithContext(DirContext dirCtx) throws NamingException {
+
+          LdapContext ctx = (LdapContext) dirCtx;
+          ctx.removeFromEnvironment("com.sun.jndi.ldap.connect.pool");
+          String fullDn = LdapUtils.getFullDn(dn, ctx).toString();
+          logger.trace("Trying to connect with DN: " + fullDn);
+
+          ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, fullDn);
+          ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, password);
+          try {
+            ctx.reconnect(null);
+          } catch (javax.naming.AuthenticationException e) {
+            logger.error(e);
+            throw new AuthenticationException("Authentication for password change failed.");
+          } finally {
+            ctx.close();
+          }
+
+          // Skip setting password as user, set it as system user isntead if
+          // authentication succceeds
+          // ctx.modifyAttributes(dn, modItems);
+
+          return null;
+        }
+      });
+    }
+
+    // Change password as admin
+    try {
+      ldapTemplate.modifyAttributes(dn, modItems);
+    } catch (Exception e) {
+      if (e.getMessage().contains("LDAP: error code 19") && e.getMessage().contains("unicodePwd") && e.getMessage().contains("CONSTRAINT_ATT_TYPE")) {
+        throw new PasswordDoesNotConformToPolicy(e);
+      } else {
         logger.error(e);
         throw e;
       }
-      return;
     }
+    return;
 
-    ldapTemplate.executeReadWrite(new ContextExecutor() {
-
-      public Object executeWithContext(DirContext dirCtx) throws NamingException {
-
-        LdapContext ctx = (LdapContext) dirCtx;
-        ctx.removeFromEnvironment("com.sun.jndi.ldap.connect.pool");
-        String fullDn = LdapUtils.getFullDn(dn, ctx).toString();
-        logger.trace("Trying to connect with DN: " + fullDn);
-        // logger.trace("Trying to connect password: " + oldPassword);
-        ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, fullDn);
-        ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, password);
-        try {
-          ctx.reconnect(null);
-        } catch (javax.naming.AuthenticationException e) {
-          logger.error(e);
-          throw new AuthenticationException("Authentication for password change failed.");
-        }
-
-        ctx.modifyAttributes(dn, modItems);
-
-        return null;
-      }
-    });
   }
 
   @Override

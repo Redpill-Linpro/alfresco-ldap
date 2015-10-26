@@ -17,7 +17,7 @@ public class CustomPeople extends People {
   protected AuthorityService authorityService;
   protected String syncZoneId;
   protected boolean enabled;
-  
+
   @Override
   public void setAuthorityService(AuthorityService authorityService) {
     this.authorityService = authorityService;
@@ -33,6 +33,7 @@ public class CustomPeople extends People {
    * 
    * @see org.alfresco.repo.jscript.People#getImmutableProperties(String)
    */
+  @SuppressWarnings("rawtypes")
   public ScriptableHashMap getImmutableProperties(String username) {
     // get all the authority zones for the user
     Set<String> authorityZones = authorityService.getAuthorityZones(username);
@@ -44,7 +45,7 @@ public class CustomPeople extends People {
       return super.getImmutableProperties(username);
     }
   }
-  
+
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
   }
@@ -57,21 +58,7 @@ public class CustomPeople extends People {
    * @throws IllegalArgumentException
    * @throws IllegalAccessException
    */
-/*
-  public void setHonorHintUseCQ2(boolean honorHintUseCQ) {
-    Method[] methods = People.class.getMethods();
-    for (Method method : methods) {
-      if ("setHonorHintUseCQ".equals(method.getName())) {
-        LOG.error("CALLING setHonorHintUseCQ");
-        try {
-          method.invoke(this, honorHintUseCQ);
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-          throw new AlfrescoRuntimeException("Error initializing hononHinUseCQ, value: "+honorHintUseCQ, e);
-        }
-      }
-    }
-  }
-*/
+
   public void setHonorHintUseCQ2(String honorHintUseCQ) {
     Method[] methods = People.class.getMethods();
     for (Method method : methods) {
@@ -80,7 +67,7 @@ public class CustomPeople extends People {
         try {
           method.invoke(this, Boolean.parseBoolean(honorHintUseCQ));
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-          throw new AlfrescoRuntimeException("Error initializing hononHinUseCQ, value: "+honorHintUseCQ, e);
+          throw new AlfrescoRuntimeException("Error initializing hononHinUseCQ, value: " + honorHintUseCQ, e);
         }
       }
     }
