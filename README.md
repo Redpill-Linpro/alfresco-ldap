@@ -18,7 +18,7 @@ The files are also available in the Redpill Linpro public nexus server, which ca
         <groupId>org.redpill-linpro.alfresco.ldap</groupId>
         <artifactId>alfresco-ldap-repo</artifactId>
         <version>1.0.0</version>
-      </dependencies>
+      </dependency>
     </dependencies>
 
 
