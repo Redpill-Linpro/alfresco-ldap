@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.node.NodeServicePolicies.OnAddAspectPolicy;
 import org.alfresco.repo.node.NodeServicePolicies.OnCreateNodePolicy;
 import org.alfresco.repo.node.NodeServicePolicies.OnUpdateNodePolicy;
 import org.alfresco.repo.node.NodeServicePolicies.OnUpdatePropertiesPolicy;
@@ -24,6 +25,7 @@ import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.RegexQNamePattern;
 import org.apache.log4j.Logger;
+import org.redpill.alfresco.ldap.exception.PasswordDoesNotConformToPolicy;
 import org.redpill.alfresco.ldap.model.RlLdapModel;
 import org.redpill.alfresco.ldap.service.LdapUserService;
 import org.springframework.util.Assert;
@@ -32,7 +34,7 @@ import org.springframework.util.Assert;
  * Attach additional information to the person object
  * 
  */
-public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, OnUpdatePropertiesPolicy, OnUpdateNodePolicy {
+public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, OnUpdatePropertiesPolicy, OnUpdateNodePolicy, OnAddAspectPolicy {
 
   private static final Logger LOG = Logger.getLogger(PersonPolicy.class);
 
@@ -46,7 +48,8 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
   protected NamespacePrefixResolver namespacePrefixResolver;
 
   protected String syncZoneId;
-  protected boolean enabled;
+  protected boolean enabled = false;
+  protected boolean resetPasswordOnPushSync = false;
 
   @Override
   public void onCreateNode(final ChildAssociationRef childAssocRef) {
@@ -60,17 +63,21 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
   }
 
   protected void addUserToLdap(NodeRef nodeRef) {
+    addUserToLdap(nodeRef, false);
+  }
+
+  protected void addUserToLdap(final NodeRef nodeRef, final boolean noPassword) {
 
     Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
     final String userId = (String) properties.get(ContentModel.PROP_USERNAME);
-    final String password = "{MD4}" + (String) properties.get(ContentModel.PROP_PASSWORD);
+
     String email = (String) properties.get(ContentModel.PROP_EMAIL);
     if (email == null) {
       email = "";
     }
     final String finalEmail = email;
     final String firstName = (String) properties.get(ContentModel.PROP_FIRSTNAME);
-   final  String lastName = (String) properties.get(ContentModel.PROP_LASTNAME);
+    final String lastName = (String) properties.get(ContentModel.PROP_LASTNAME);
 
     AuthenticationUtil.runAsSystem(new RunAsWork<Void>() {
 
@@ -78,7 +85,14 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
       public Void doWork() throws Exception {
 
         NodeRef userInUserStoreNodeRef = getUserOrNull(userId);
-        String localPassword = password;
+        String localPassword = null;
+        if (userInUserStoreNodeRef != null) {
+          String passwordProperty = (String) nodeService.getProperty(userInUserStoreNodeRef, ContentModel.PROP_PASSWORD);
+
+          if (!noPassword && passwordProperty.length() > 0) {
+            localPassword = "{MD4}" + passwordProperty;
+          }
+        }
         if (userInUserStoreNodeRef != null && nodeService.hasAspect(userInUserStoreNodeRef, RlLdapModel.ASPECT_TEMPORARY_PASSWORD)) {
           localPassword = (String) nodeService.getProperty(userInUserStoreNodeRef, RlLdapModel.PROP_TEMPORARY_PASSWORD);
           ldapUserService.createUser(userId, localPassword, false, finalEmail, firstName, lastName);
@@ -100,7 +114,9 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
         zones.add(zoneName);
 
         authorityService.getOrCreateZone(zoneName);
-        authorityService.addAuthorityToZones(userId, zones);
+        Set<String> authoritiesForUser = authorityService.getAuthorityZones(userId);
+        if (!authoritiesForUser.contains(zoneName))
+          authorityService.addAuthorityToZones(userId, zones);
 
         if (LOG.isInfoEnabled()) {
           LOG.info("Adding " + userId + " to zone " + zoneName);
@@ -109,7 +125,6 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
       }
     });
 
-    
   }
 
   @Override
@@ -120,6 +135,29 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
       updateUserInLdap(nodeRef, after);
     }
     LOG.trace("onUpdateProperties end");
+  }
+
+  @Override
+  public void onUpdateNode(NodeRef nodeRef) {
+    LOG.trace("onUpdateNode begin");
+    LOG.trace("onUpdateNode end");
+  }
+
+  @Override
+  public void onAddAspect(NodeRef nodeRef, QName aspectTypeQName) {
+    LOG.trace("onAddAspect begin");
+
+    if (!shouldSkipAddAspectPolicy(nodeRef)) {
+      try {
+        addUserToLdap(nodeRef, resetPasswordOnPushSync);
+      } catch (PasswordDoesNotConformToPolicy e) {
+        addUserToLdap(nodeRef, true); // Create user with no password
+        nodeService.addAspect(nodeRef, RlLdapModel.ASPECT_NO_PASSWORD, null);
+        LOG.warn("Creating user in ldap without password due to old password not conforming to policies: " + nodeRef);
+      }
+    }
+
+    LOG.trace("onAddAspect end");
   }
 
   protected void updateUserInLdap(NodeRef nodeRef, Map<QName, Serializable> after) {
@@ -182,6 +220,43 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
       }
       if (AuthenticationUtil.getSystemUserName().equals(userId) || (AuthenticationUtil.getSystemUserName() + "User").equals(userId)) {
         LOG.info("Skipping sytem user. Will not move to LDAP.");
+        result = true;
+      }
+    }
+    return result;
+  }
+
+  protected boolean shouldSkipAddAspectPolicy(NodeRef nodeRef) {
+    boolean result = super.shouldSkipPolicy(nodeRef);
+    if (!enabled) {
+      LOG.info("Skipping policy. LDAP Manager is disabled.");
+      result = true;
+    }
+    if (!result) {
+      String userId = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_USERNAME);
+      Set<String> authorityZones = authorityService.getAuthorityZones(userId);
+
+      for (String authorityZone : authorityZones) {
+        // Skip if user comes from an external zone such as an LDAP
+        if (authorityZone.startsWith(AuthorityService.ZONE_AUTH_EXT_PREFIX) && !authorityZone.equals(AuthorityService.ZONE_AUTH_EXT_PREFIX + syncZoneId)) {
+          if (LOG.isTraceEnabled()) {
+            LOG.trace("User " + userId + " is originating from an external zone already. Will not move to LDAP.");
+          }
+          result = true;
+          continue;
+        }
+      }
+
+      if (AuthenticationUtil.getAdminUserName().equals(userId)) {
+        LOG.info("Skipping admin user. Will not move to LDAP.");
+        result = true;
+      }
+      if (AuthenticationUtil.getSystemUserName().equals(userId) || (AuthenticationUtil.getSystemUserName() + "User").equals(userId)) {
+        LOG.info("Skipping system user. Will not move to LDAP.");
+        result = true;
+      }
+      if (AuthenticationUtil.getGuestUserName().equals(userId)) {
+        LOG.info("Skipping guest user. Will not move to LDAP.");
         result = true;
       }
     }
@@ -261,6 +336,10 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
   public void setNamespacePrefixResolver(NamespacePrefixResolver namespacePrefixResolver) {
     this.namespacePrefixResolver = namespacePrefixResolver;
   }
+  
+  public void setResetPasswordOnPushSync(boolean resetPasswordOnPushSync) {
+    this.resetPasswordOnPushSync = resetPasswordOnPushSync;
+  }
 
   @Override
   public void afterPropertiesSet() {
@@ -275,15 +354,10 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
       policyComponent.bindClassBehaviour(OnCreateNodePolicy.QNAME, ContentModel.TYPE_PERSON, new JavaBehaviour(this, "onCreateNode", NotificationFrequency.TRANSACTION_COMMIT));
       policyComponent.bindClassBehaviour(OnUpdatePropertiesPolicy.QNAME, ContentModel.TYPE_PERSON, new JavaBehaviour(this, "onUpdateProperties", NotificationFrequency.TRANSACTION_COMMIT));
       policyComponent.bindClassBehaviour(OnUpdateNodePolicy.QNAME, ContentModel.TYPE_PERSON, new JavaBehaviour(this, "onUpdateNode", NotificationFrequency.TRANSACTION_COMMIT));
+      policyComponent.bindClassBehaviour(OnAddAspectPolicy.QNAME, RlLdapModel.ASPECT_PUSH_SYNC, new JavaBehaviour(this, "onAddAspect", NotificationFrequency.TRANSACTION_COMMIT));
 
       initialized = true;
     }
-  }
-
-  @Override
-  public void onUpdateNode(NodeRef nodeRef) {
-    LOG.trace("onUpdateNode begin");
-    LOG.trace("onUpdateNode end");
   }
 
 }

@@ -31,7 +31,15 @@
         </property>
       </properties>
     </aspect>
-
+    
+    <aspect name="rlldap:temporaryPushSyncAspect">
+      <title>Temporary person push sync</title>
+    </aspect>
+    
+    <aspect name="rlldap:noPasswordAspect">
+      <title>No password aspect</title>
+    </aspect>
+    
   </aspects>
 
 </model>

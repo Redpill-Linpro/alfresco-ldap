@@ -99,19 +99,23 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
       personBasicAttribute.add(objectClass);
     }
     personAttributes.put(personBasicAttribute);
-    personAttributes.put(userIdAttributeName, userId);
-    personAttributes.put(givenNameAttributeName, firstName);
-    if ("givenName".equalsIgnoreCase(cnBasedOn)) {
+    if (userId != null)
+      personAttributes.put(userIdAttributeName, userId);
+    if (firstName != null)
+      personAttributes.put(givenNameAttributeName, firstName);
+    if ("givenName".equalsIgnoreCase(cnBasedOn) && firstName != null) {
       personAttributes.put(cnAttributeName, firstName);
-    } else if ("uid".equalsIgnoreCase(cnBasedOn)) {
+    } else if ("uid".equalsIgnoreCase(cnBasedOn) && userId != null) {
       personAttributes.put(cnAttributeName, userId);
     } else {
       throw new UnsupportedOperationException("Invalid mapping for CN");
     }
-    personAttributes.put(snAttributeName, lastName);
-
-    personAttributes.put(passwordAttributeName, hashedPassword);
-    personAttributes.put(mailAttributeName, email);
+    if (lastName != null)
+      personAttributes.put(snAttributeName, lastName);
+    if (hashedPassword != null)
+      personAttributes.put(passwordAttributeName, hashedPassword);
+    if (email != null)
+      personAttributes.put(mailAttributeName, email);
 
     final DistinguishedName dn = usernameMapper.buildDn(userId);
     try {

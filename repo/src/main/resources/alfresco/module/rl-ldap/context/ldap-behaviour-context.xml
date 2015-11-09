@@ -10,13 +10,14 @@
     <property name="lockService" ref="LockService" />
   </bean>
   
-  <bean id="rl.ldapPersonPolicy" class="org.redpill.alfresco.ldap.behaviour.PersonPolicy" depends-on="dictionaryBootstrap" parent="rl.ldapAbstractPolicy">
+  <bean id="rl.ldapPersonPolicy" class="org.redpill.alfresco.ldap.behaviour.PersonPolicy" depends-on="rl.ldapDictionaryBootstrap" parent="rl.ldapAbstractPolicy">
     <property name="ldapUserService" ref="rl.ldapUserService" />
     <property name="authorityService" ref="AuthorityService" />
     <property name="tenantService" ref="tenantService" />
     <property name="namespacePrefixResolver" ref="NamespaceService" />
     <property name="syncZoneId" value="${ldapMgr.syncZoneId}" />
     <property name="enabled" value="${ldapMgr.enabled}" />
+    <property name="resetPasswordOnPushSync" value="${ldapMgr.resetPasswordOnPushSync}" />
   </bean>
   
   
