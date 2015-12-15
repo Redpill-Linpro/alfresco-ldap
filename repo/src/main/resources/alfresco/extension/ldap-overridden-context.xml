@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <!-- Change password webscripts. Is used from admin console and share UI -->
+  <bean id="webscript.org.alfresco.repository.person.changepassword.post" class="org.redpill.alfresco.ldap.scripts.person.CustomChangePasswordPost" parent="webscript">
+    <property name="authenticationService" ref="AuthenticationService" />
+    <property name="authorityService" ref="AuthorityService" />
+    <property name="syncZoneId" value="${ldapMgr.syncZoneId}" />
+    <property name="ldapUserService" ref="rl.ldapUserService" />
+    <property name="enabled" value="${ldapMgr.enabled}" />
+  </bean>
+
+
+  <!-- Update other properties related beans -->
+  <bean id="peopleScript" parent="baseJavaScriptExtension" class="org.redpill.alfresco.ldap.jscript.CustomPeople">
+    <property name="extensionName">
+      <value>people</value>
+    </property>
+    <property name="storeUrl">
+      <value>${spaces.store}</value>
+    </property>
+    <property name="serviceRegistry">
+      <ref bean="ServiceRegistry" />
+    </property>
+    <property name="authorityDAO">
+      <ref bean="authorityDAO" />
+    </property>
+    <property name="authorityService">
+      <ref bean="AuthorityService" />
+    </property>
+    <property name="personService">
+      <ref bean="PersonService" />
+    </property>
+    <property name="authenticationService">
+      <ref bean="AuthenticationService" />
+    </property>
+    <property name="contentUsageService">
+      <ref bean="ContentUsageService" />
+    </property>
+    <property name="tenantService">
+      <ref bean="tenantService" />
+    </property>
+    <property name="userNameGenerator">
+      <ref bean="userNameGenerator" />
+    </property>
+    <property name="userRegistrySynchronizer" ref="userRegistrySynchronizer" />
+    <property name="honorHintUseCQ2">
+      <value>${people.search.honor.hint.useCQ}</value>
+    </property>
+    <property name="syncZoneId" value="${ldapMgr.syncZoneId}" />
+    <property name="enabled" value="${ldapMgr.enabled}" />
+  </bean>
+<!-- 
+  <bean id="authenticationDao" class="org.redpill.alfresco.ldap.security.authentication.CustomRepositoryAuthenticationDao">
+    <property name="nodeService" ref="nodeService" />
+    <property name="authorityService" ref="authorityService" />
+    <property name="tenantService" ref="tenantService" />
+    <property name="namespaceService" ref="namespaceService" />
+    <property name="passwordEncoder" ref="passwordEncoder" />
+    <property name="sha256PasswordEncoder" ref="sha256PasswordEncoder" />
+    <property name="policyComponent" ref="policyComponent" />
+    <property name="authenticationCache" ref="authenticationCache" />
+    <property name="singletonCache" ref="immutableSingletonCache" />
+    <property name="transactionService" ref="transactionService" />
+    <property name="syncZoneId" value="${ldapMgr.syncZoneId}" />
+    <property name="ldapUserService" ref="rl.ldapUserService" />
+    <property name="behaviourFilter" ref="policyBehaviourFilter" />
+  </bean>
+ -->
+</beans>

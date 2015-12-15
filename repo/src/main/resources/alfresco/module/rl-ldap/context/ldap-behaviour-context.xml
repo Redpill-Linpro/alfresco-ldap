@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ldap="http://www.springframework.org/schema/ldap"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/ldap http://www.springframework.org/schema/ldap/spring-ldap.xsd">
+
+  <bean id="rl.ldapAbstractPolicy" class="org.redpill.alfresco.ldap.behaviour.AbstractPolicy" abstract="true">
+    <property name="nodeService" ref="NodeService" />
+    <property name="policyComponent" ref="policyComponent" />
+    <property name="behaviourFilter" ref="policyBehaviourFilter" />
+    <property name="lockService" ref="LockService" />
+  </bean>
+  
+  <bean id="rl.ldapPersonPolicy" class="org.redpill.alfresco.ldap.behaviour.PersonPolicy" depends-on="rl.ldapDictionaryBootstrap" parent="rl.ldapAbstractPolicy">
+    <property name="ldapUserService" ref="rl.ldapUserService" />
+    <property name="authorityService" ref="AuthorityService" />
+    <property name="tenantService" ref="tenantService" />
+    <property name="namespacePrefixResolver" ref="NamespaceService" />
+    <property name="syncZoneId" value="${ldapMgr.syncZoneId}" />
+    <property name="enabled" value="${ldapMgr.enabled}" />
+    <property name="resetPasswordOnPushSync" value="${ldapMgr.resetPasswordOnPushSync}" />
+  </bean>
+  
+  
+
+</beans>

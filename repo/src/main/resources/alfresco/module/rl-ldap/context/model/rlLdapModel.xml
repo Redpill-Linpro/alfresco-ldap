@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<model name="rlldap:ldapmodel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+
+  <description>RL Ldap Model</description>
+  <author>Repill Linpro AB</author>
+  <version>1.0.0</version>
+
+  <imports>
+    <!-- Import Alfresco System Definitions -->
+    <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys" />
+    <!-- Import Alfresco Dictionary Definitions -->
+    <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
+    <!-- Import Alfresco Content Domain Model Definitions -->
+    <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm" />
+    <!-- Import Alfresco Rendition Domain Model Definitions -->
+    <import uri="http://www.alfresco.org/model/rendition/1.0" prefix="rn" />
+    <import uri="http://www.alfresco.org/model/datalist/1.0" prefix="dl" />
+  </imports>
+
+  <namespaces>
+    <namespace uri="http://www.redpill-linpro.com/model/ldap/1.0" prefix="rlldap" />
+  </namespaces>
+
+  <aspects>
+    <aspect name="rlldap:temporaryPasswordAspect">
+      <title>Temporary password aspect</title>
+      <properties>
+        <property name="rlldap:temporaryPassword">
+          <type>d:text</type>
+        </property>
+      </properties>
+    </aspect>
+    
+    <aspect name="rlldap:temporaryPushSyncAspect">
+      <title>Temporary person push sync</title>
+    </aspect>
+    
+    <aspect name="rlldap:noPasswordAspect">
+      <title>No password aspect</title>
+    </aspect>
+    
+  </aspects>
+
+</model>

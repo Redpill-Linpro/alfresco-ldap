@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ldap="http://www.springframework.org/schema/ldap"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/ldap http://www.springframework.org/schema/ldap/spring-ldap.xsd">
+  <bean id="rl.ldapContextSource" class="org.springframework.ldap.core.support.LdapContextSource">
+    <property name="url" value="${ldapMgr.java.naming.provider.url}" />
+    <property name="userDn" value="${ldapMgr.java.naming.security.principal}" />
+    <property name="password" value="${ldapMgr.java.naming.security.credentials}" />
+    <property name="pooled" value="false" />
+  </bean>
+
+  <bean id="rl.ldapUsernameMapper" class="org.springframework.security.ldap.DefaultLdapUsernameToDnMapper">
+    <constructor-arg index="0" value="${ldapMgr.userSearchBase}" />
+    <constructor-arg index="1" value="${ldapMgr.cnAttributeName}" />
+  </bean>
+
+  <bean id="rl.ldapUserService" class="org.redpill.alfresco.ldap.service.impl.LdapUserServiceImpl">
+    <property name="contextSource" ref="rl.ldapContextSource" />
+    <property name="usernameMapper" ref="rl.ldapUsernameMapper" />
+    <property name="passwordAttributeName" value="${ldapMgr.passwordAttributeName}" />
+    <property name="givenNameAttributeName" value="${ldapMgr.givenNameAttributeName}" />
+    <property name="cnAttributeName" value="${ldapMgr.cnAttributeName}" />
+    <property name="cnBasedOn" value="${ldapMgr.cnBasedOn}" />
+    <property name="snAttributeName" value="${ldapMgr.snAttributeName}" />
+    <property name="mailAttributeName" value="${ldapMgr.mailAttributeName}" />
+    <property name="userIdAttributeName" value="${ldapMgr.userIdAttributeName}" />
+    <property name="objectClasses" value="${ldapMgr.objectClasses}" />
+    <property name="passwordAlgorithm" value="${ldapMgr.passwordAlgorithm}" />
+  </bean>
+</beans>
