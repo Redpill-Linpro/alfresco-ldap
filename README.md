@@ -9,7 +9,9 @@ This module allows for managing alfresco internal users in an ldap directory.
 * Login is done against the ldap directory in the authentication chain
 
 ## Building & packaging
-This module is distributed as jar files. They can be built and installed into your local maven repository using "mvn clean install".
+This module is distributed as jar files. They can be built and installed into your local maven repository using "mvn clean install". 
+
+There is an enterprise module available for Alfresco 4.2.5.1+. This module can be excluded on older versions of Alfresco and on Community.
 
 ## Installation
 The files are also available in the Redpill Linpro public nexus server, which can be accessed in your own maven projects by adding the following dependencies and repository tags to your maven pom.xml for you repository project:
@@ -18,7 +20,14 @@ The files are also available in the Redpill Linpro public nexus server, which ca
       <dependency>
         <groupId>org.redpill-linpro.alfresco.ldap</groupId>
         <artifactId>alfresco-ldap-repo</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
+      </dependency>
+    </dependencies>
+    <dependencies>
+      <dependency>
+        <groupId>org.redpill-linpro.alfresco.ldap</groupId>
+        <artifactId>alfresco-ldap-repo-enterprise</artifactId>
+        <version>1.0.1</version>
       </dependency>
     </dependencies>
 
