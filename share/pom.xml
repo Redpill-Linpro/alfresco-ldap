@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.redpill-linpro.alfresco.ldap</groupId>
     <artifactId>alfresco-ldap</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
   </parent>
 
   <artifactId>alfresco-ldap-share</artifactId>
