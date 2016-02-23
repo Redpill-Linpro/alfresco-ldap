@@ -9,17 +9,32 @@
     <version>1.0.1</version>
   </parent>
 
-  <artifactId>alfresco-ldap-repo</artifactId>
+  <artifactId>alfresco-ldap-repo-enterprise</artifactId>
 
-  <name>Alfresco Ldap (Repository)</name>
+  <name>Alfresco Ldap (Repository Enterprise extension)</name>
   <description>This project implements support for managing users stored in an LDAP directory</description>
-
+  <properties>
+    <alfresco.groupId>org.alfresco</alfresco.groupId>
+    <alfresco.version>4.2.5.1</alfresco.version>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>${alfresco.groupId}</groupId>
       <artifactId>alfresco-repository</artifactId>
     </dependency>
-    
+    <dependency>
+      <groupId>org.alfresco.authorization</groupId>
+      <artifactId>alfresco-authorised-users</artifactId>
+      <version>${alfresco.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>${alfresco.groupId}</groupId>
+      <artifactId>alfresco-repository</artifactId>
+      <version>${alfresco.version}</version>
+      <classifier>h2scripts</classifier>
+      <!--<scope>provided</scope> Cannot be in test scope iffunctional tests should work. -->
+    </dependency>
     <dependency>
       <groupId>${alfresco.groupId}</groupId>
       <artifactId>alfresco-remote-api</artifactId>
@@ -99,7 +114,7 @@
       <type>jar</type>
       <scope>test</scope>
     </dependency>
-        <dependency>
+    <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
       <version>3.0.5.RELEASE</version>

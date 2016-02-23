@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+<!-- Top-level imports of XML configuration -->
+<beans>
+
+    <!--
+        This file is processed last of all context files. Perfect for overriding Alfresco beans
+    -->
+    <import resource="classpath*:alfresco/extension/ldap-overridden-context.xml" />
+</beans>
