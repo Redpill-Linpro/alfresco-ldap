@@ -12,7 +12,7 @@
 
   <groupId>org.redpill-linpro.alfresco.ldap</groupId>
   <artifactId>alfresco-ldap</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Alfresco Ldap</name>
@@ -64,6 +64,7 @@
   <modules>
     <module>repo</module>
     <module>share</module>
+     <module>repo-enterprise</module>
   </modules>
 
   <repositories>
