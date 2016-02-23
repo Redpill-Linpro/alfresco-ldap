@@ -22,7 +22,19 @@
       <groupId>${alfresco.groupId}</groupId>
       <artifactId>alfresco-repository</artifactId>
     </dependency>
-
+    <dependency>
+      <groupId>org.alfresco.authorization</groupId>
+      <artifactId>alfresco-authorised-users</artifactId>
+      <version>${alfresco.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>${alfresco.groupId}</groupId>
+      <artifactId>alfresco-repository</artifactId>
+      <version>${alfresco.version}</version>
+      <classifier>h2scripts</classifier>
+      <!--<scope>provided</scope> Cannot be in test scope iffunctional tests should work. -->
+    </dependency>
     <dependency>
       <groupId>${alfresco.groupId}</groupId>
       <artifactId>alfresco-remote-api</artifactId>
