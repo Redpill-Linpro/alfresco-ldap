@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: commons-httpclient:commons-httpclient:3.1-HTTPCLIENT-1265">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/commons-httpclient/commons-httpclient/3.1-HTTPCLIENT-1265/commons-httpclient-3.1-HTTPCLIENT-1265.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/commons-httpclient/commons-httpclient/3.1-HTTPCLIENT-1265/commons-httpclient-3.1-HTTPCLIENT-1265-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/commons-httpclient/commons-httpclient/3.1-HTTPCLIENT-1265/commons-httpclient-3.1-HTTPCLIENT-1265-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

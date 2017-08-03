@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.mozilla:rhino:1.7R4-alfresco-patched">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/mozilla/rhino/1.7R4-alfresco-patched/rhino-1.7R4-alfresco-patched.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/mozilla/rhino/1.7R4-alfresco-patched/rhino-1.7R4-alfresco-patched-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/mozilla/rhino/1.7R4-alfresco-patched/rhino-1.7R4-alfresco-patched-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
