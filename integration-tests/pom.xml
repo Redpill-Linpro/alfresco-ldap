@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>integration-tests</artifactId>
-    <name>Integration Tests Module</name>
+    <name>Alfresco LDAP - Integration Tests Module</name>
     <description>Integration Tests module for in-container integration testing - part of AIO - SDK 3</description>
     <packaging>jar</packaging> <!-- Note. this just runs Integration Tests, but it needs to be a JAR otherwise
                                             nothing is compiled (i.e. you cannot set it to pom) -->
@@ -43,6 +43,22 @@
             <artifactId>spring-test</artifactId>
             <version>4.1.6.RELEASE</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jmock</groupId>
+            <artifactId>jmock-junit4</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jmock</groupId>
+            <artifactId>jmock</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.mockito</groupId>
+          <artifactId>mockito-all</artifactId>
         </dependency>
     </dependencies>
 

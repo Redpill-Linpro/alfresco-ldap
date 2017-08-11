@@ -87,7 +87,7 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
         NodeRef userInUserStoreNodeRef = getUserOrNull(userId);
         String localPassword = null;
         if (userInUserStoreNodeRef != null) {
-          String passwordProperty = (String) nodeService.getProperty(userInUserStoreNodeRef, ContentModel.PROP_PASSWORD);
+          String passwordProperty = (String) nodeService.getProperty(userInUserStoreNodeRef, ContentModel.PROP_PASSWORD_HASH);
 
           if (!noPassword && passwordProperty.length() > 0) {
             localPassword = "{MD4}" + passwordProperty;

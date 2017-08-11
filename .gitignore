@@ -21,3 +21,4 @@ old/
 *.iml
 .idea/
 *.log
+*.log*

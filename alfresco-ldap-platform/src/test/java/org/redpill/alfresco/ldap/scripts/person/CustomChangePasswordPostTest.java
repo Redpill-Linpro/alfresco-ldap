@@ -1,6 +1,7 @@
 package org.redpill.alfresco.ldap.scripts.person;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -18,6 +19,8 @@ import org.junit.Test;
 import org.redpill.alfresco.ldap.service.LdapUserService;
 import org.springframework.extensions.surf.util.Content;
 import org.springframework.extensions.webscripts.WebScriptRequest;
+
+import org.redpill.alfresco.ldap.scripts.person.CustomChangePasswordPost;
 
 public class CustomChangePasswordPostTest {
 

@@ -6,6 +6,6 @@ public class BootstrapIT extends AbstractLdapRepoIT {
 
   @Test
   public void testNothing() {
-
+	  System.out.println("TEST3");
   }
 }

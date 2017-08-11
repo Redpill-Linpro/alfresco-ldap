@@ -4,7 +4,7 @@
     <groupId>org.redpill-linpro.alfresco.ldap</groupId>
     <artifactId>alfresco-ldap</artifactId>
     <version>1.1.0-SNAPSHOT</version>
-    <name>AIO - SDK 3.0 Beta</name>
+    <name>Alfresco LDAP</name>
     <description>All-In-One (AIO) project for SDK 3.0</description>
     <packaging>pom</packaging>
 
@@ -16,7 +16,7 @@
 
     <properties>
         <!-- Alfresco Maven Plugin version to use -->
-        <alfresco.sdk.version>3.0.0</alfresco.sdk.version>
+        <alfresco.sdk.version>3.0.1-SNAPSHOT</alfresco.sdk.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -101,11 +101,17 @@
     <!-- IMPORTANT - Test dependencies need to be here in the top parent POM as
                      the Alfresco Maven IT Mojo runs as part of the parent project ... -->
     <dependencies>
-        <!--
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.9.5</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -114,7 +120,7 @@
             <version>4.5.2</version>
             <scope>test</scope>
         </dependency>
--->
+
         <!-- The main Alfresco Repo dependency for compiling Java code in src/main/java -->
         <dependency>
             <groupId>${alfresco.groupId}</groupId>
@@ -122,24 +128,21 @@
         </dependency>
 
         <!-- Bring in Spring Context so we can use ApplicationContext, ApplicationContextAware etc -->
-        <!--
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>3.2.17.RELEASE</version>
+            <version>4.3.9.RELEASE</version>
             <scope>test</scope>
         </dependency>
-    -->
 
         <!-- Bring in Alfresco RAD so we get access to AlfrescoTestRunner classes -->
-        <!--
         <dependency>
             <groupId>org.alfresco.maven</groupId>
             <artifactId>alfresco-rad</artifactId>
             <version>${alfresco.sdk.version}</version>
             <scope>test</scope>
         </dependency>
--->
+
     </dependencies>
 
     <dependencyManagement>
@@ -150,7 +153,6 @@
                  NOTE: It defaults to the latest version this SDK pom has been tested with,
                        but alfresco version can/should be overridden in your project's pom
             -->
-
             <dependency>
                 <groupId>${alfresco.groupId}</groupId>
                 <artifactId>alfresco-platform-distribution</artifactId>
@@ -208,6 +210,11 @@
                 <type>jar</type>
             </dependency>
             <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-config</artifactId>
+                <version>4.2.3.RELEASE</version>
+            </dependency>
+            <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
                 <version>4.3.9.RELEASE</version>
@@ -232,10 +239,23 @@
                 <version>2.8.3</version>
                 <scope>test</scope>
             </dependency>
+            <!-- https://mvnrepository.com/artifact/org.jmock/jmock-junit4 -->
+            <dependency>
+              <groupId>org.jmock</groupId>
+              <artifactId>jmock-junit4</artifactId>
+              <version>2.6.0</version>
+              <exclusions>
+                <exclusion>
+                  <artifactId>junit-dep</artifactId>
+                  <groupId>junit</groupId>
+                </exclusion>
+              </exclusions>
+              <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>org.jmock</groupId>
-                <artifactId>jmock-junit4</artifactId>
-                <version>2.8.3</version>
+                <artifactId>jmock-legacy</artifactId>
+                <version>2.6.0</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
@@ -392,27 +412,36 @@
                             <groupId>${project.groupId}</groupId>
                             <artifactId>alfresco-ldap-platform</artifactId>
                             <version>${project.version}</version>
+                            <type>amp</type>
                         </moduleDependency>
-
+                        <!--
                         <moduleDependency>
                             <groupId>${project.groupId}</groupId>
                             <artifactId>alfresco-ldap-platform-enterprise</artifactId>
                             <version>${project.version}</version>
+                            <type>amp</type>
                         </moduleDependency>
-
+                        -->
                         <!-- Bring in the integration tests -->
-                        <!--
+                        
                         <moduleDependency>
                             <groupId>${project.groupId}</groupId>
                             <artifactId>integration-tests</artifactId>
                             <version>${project.version}</version>
                             <classifier>tests</classifier>
                         </moduleDependency>
-                        -->
+                        
                         <moduleDependency>
                           <groupId>org.redpill-linpro.alfresco</groupId>
                           <artifactId>alfresco-test-repo</artifactId>
                           <version>${rl.alfresco-test.version}</version>
+                        </moduleDependency>
+
+                        <moduleDependency>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>alfresco-ldap-embedded</artifactId>
+                            <version>${project.version}</version>
+                            <type>amp</type>
                         </moduleDependency>
                     </platformModules>
 
@@ -518,6 +547,7 @@
     <module>alfresco-ldap-platform</module>
     <module>alfresco-ldap-platform-enterprise</module>
     <module>alfresco-ldap-share</module>
-    <!--<module>integration-tests</module>-->
+    <module>integration-tests</module>
+    <module>alfresco-ldap-embedded</module>
   </modules>
 </project>

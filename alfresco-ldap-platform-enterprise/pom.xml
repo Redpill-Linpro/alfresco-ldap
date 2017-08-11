@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>alfresco-ldap-platform-enterprise</artifactId>
-    <name>Alfresco Platform/Repository Enterprise JAR Module</name>
+    <name>Alfresco LDAP - Alfresco Platform/Repository Enterprise JAR Module</name>
     <description>Platform/Repo Enterprise JAR Module (to be included in the alfresco.war) - part of AIO - SDK 3
     </description>
     <packaging>jar</packaging>
@@ -19,6 +19,10 @@
 
         <!-- Default is to run with a Community edition, change to 'enterprise' if using Enterprise edition -->
         <maven.alfresco.edition>enterpise</maven.alfresco.edition>
+        <alfresco.client.war>alfresco</alfresco.client.war>
+      <tomcat.home>${tomcat.repo.home}</tomcat.home>
+      <tomcat.port>${tomcat.repo.port}</tomcat.port>
+      <ft.skip>false</ft.skip>
     </properties>
 
     <dependencies>
