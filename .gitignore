@@ -16,3 +16,9 @@ target
 .settings
 .classpath
 alf_data_dev
+./old/
+old/
+*.iml
+.idea/
+*.log
+*.log*
