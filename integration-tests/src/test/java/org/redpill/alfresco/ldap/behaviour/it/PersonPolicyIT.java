@@ -14,6 +14,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.redpill.alfresco.ldap.it.AbstractLdapRepoIT;
+import org.redpill.alfresco.ldap.model.RlLdapModel;
 
 public class PersonPolicyIT extends AbstractLdapRepoIT {
 
@@ -40,6 +41,7 @@ public class PersonPolicyIT extends AbstractLdapRepoIT {
                 properties.put(ContentModel.PROP_FIRSTNAME, "Howland");
                 properties.put(ContentModel.PROP_LASTNAME, "Simpson");
                 properties.put(ContentModel.PROP_EMAIL, _properties.getProperty("mail.to.default"));
+                properties.put(ContentModel.PROP_PASSWORD, "testpassword");
 
                 NodeRef userNodeRef = _personService.createPerson(properties);
                 assertNotNull(userNodeRef);

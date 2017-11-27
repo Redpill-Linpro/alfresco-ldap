@@ -32,7 +32,7 @@ import org.springframework.util.Assert;
 
 /**
  * Attach additional information to the person object
- * 
+ *
  */
 public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, OnUpdatePropertiesPolicy, OnUpdateNodePolicy, OnAddAspectPolicy {
 
@@ -97,15 +97,17 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
           localPassword = (String) nodeService.getProperty(userInUserStoreNodeRef, RlLdapModel.PROP_TEMPORARY_PASSWORD);
           ldapUserService.createUser(userId, localPassword, false, finalEmail, firstName, lastName);
           boolean enabled = behaviourFilter.isEnabled(userInUserStoreNodeRef);
-          if (enabled)
+          if (enabled) {
             behaviourFilter.disableBehaviour(userInUserStoreNodeRef);
+          }
           // Remove the aspect and its properties
           LOG.trace("Removing temporary password aspect for user " + userId);
           nodeService.removeAspect(userInUserStoreNodeRef, RlLdapModel.ASPECT_TEMPORARY_PASSWORD);
-          if (enabled)
+          if (enabled) {
             behaviourFilter.enableBehaviour(userInUserStoreNodeRef);
+          }
         } else {
-          ldapUserService.createUser(userId, localPassword, true, finalEmail, firstName, lastName);
+          ldapUserService.createUser(userId, localPassword, false, finalEmail, firstName, lastName);
         }
 
         // Add user to zone
@@ -115,8 +117,9 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
 
         authorityService.getOrCreateZone(zoneName);
         Set<String> authoritiesForUser = authorityService.getAuthorityZones(userId);
-        if (!authoritiesForUser.contains(zoneName))
+        if (!authoritiesForUser.contains(zoneName)) {
           authorityService.addAuthorityToZones(userId, zones);
+        }
 
         if (LOG.isInfoEnabled()) {
           LOG.info("Adding " + userId + " to zone " + zoneName);
@@ -162,7 +165,7 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
 
   protected void updateUserInLdap(NodeRef nodeRef, Map<QName, Serializable> after) {
     ldapUserService.editUser((String) after.get(ContentModel.PROP_USERNAME), null, null, (String) after.get(ContentModel.PROP_EMAIL), (String) after.get(ContentModel.PROP_FIRSTNAME),
-        (String) after.get(ContentModel.PROP_LASTNAME));
+            (String) after.get(ContentModel.PROP_LASTNAME));
   }
 
   private boolean shouldSkipUpdatePropertiesPolicy(NodeRef nodeRef, Map<QName, Serializable> before, Map<QName, Serializable> after) {
@@ -269,7 +272,7 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
       @Override
       public NodeRef doWork() throws Exception {
         List<ChildAssociationRef> results = nodeService.getChildAssocs(getUserFolderLocation(caseSensitiveSearchUserName), ContentModel.ASSOC_CHILDREN,
-            QName.createQName(ContentModel.USER_MODEL_URI, caseSensitiveSearchUserName));
+                QName.createQName(ContentModel.USER_MODEL_URI, caseSensitiveSearchUserName));
         if (!results.isEmpty()) {
           // Extract values from the query results
           NodeRef userRef = tenantService.getName(results.get(0).getChildRef());
@@ -336,7 +339,7 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
   public void setNamespacePrefixResolver(NamespacePrefixResolver namespacePrefixResolver) {
     this.namespacePrefixResolver = namespacePrefixResolver;
   }
-  
+
   public void setResetPasswordOnPushSync(boolean resetPasswordOnPushSync) {
     this.resetPasswordOnPushSync = resetPasswordOnPushSync;
   }

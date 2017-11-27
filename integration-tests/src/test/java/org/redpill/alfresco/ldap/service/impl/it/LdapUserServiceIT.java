@@ -111,7 +111,7 @@ public class LdapUserServiceIT extends AbstractLdapRepoIT {
         }
 
         // Reset to default
-        ((LdapUserServiceImpl) _ldapUserService).setPasswordAlgorithm("ssha");
+        ((LdapUserServiceImpl) _ldapUserService).setPasswordAlgorithm("ad");
     }
 
     @Test
@@ -123,8 +123,7 @@ public class LdapUserServiceIT extends AbstractLdapRepoIT {
 
         _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
         assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
-        _ldapUserService.createUser(user, DEFAULT_PASSWORD, user + "@simpson.com", StringUtils.capitalize(user),
-                "Simpson");
+        _ldapUserService.createUser(user, DEFAULT_PASSWORD, user + "@simpson.com", StringUtils.capitalize(user),"Simpson");
         _authenticationService.authenticate(user, DEFAULT_PASSWORD.toCharArray());
         assertEquals(user, AuthenticationUtil.getFullyAuthenticatedUser());
         _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());

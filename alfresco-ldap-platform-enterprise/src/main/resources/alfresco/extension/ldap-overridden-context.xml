@@ -38,5 +38,6 @@
     <property name="authorizationService" ref="AuthorizationService" />
     <property name="syncZoneId" value="${ldapMgr.syncZoneId}" />
     <property name="enabled" value="${ldapMgr.enabled}" />
+    <property name="nodeService" ref="NodeService"/>
   </bean>
 </beans>
