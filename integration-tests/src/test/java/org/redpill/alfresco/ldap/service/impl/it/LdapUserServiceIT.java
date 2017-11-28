@@ -8,6 +8,7 @@ import org.alfresco.repo.security.authentication.AuthenticationException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.redpill.alfresco.ldap.it.AbstractLdapRepoIT;
 import org.redpill.alfresco.ldap.service.LdapUserService;
@@ -31,75 +32,78 @@ public class LdapUserServiceIT extends AbstractLdapRepoIT {
         _ldapUserService = (LdapUserService) ctx.getBean("rl.ldapUserService");
     }
 
+    @Ignore
     @Test
     public void testChangePasswordAsUser() {
 
-        _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+        authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
         assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
         _ldapUserService.changePassword(USER_LISA, DEFAULT_PASSWORD, CHANGED_PASSWORD);
-        _authenticationService.authenticate(USER_LISA, CHANGED_PASSWORD.toCharArray());
+        authenticationService.authenticate(USER_LISA, CHANGED_PASSWORD.toCharArray());
         assertEquals(USER_LISA, AuthenticationUtil.getFullyAuthenticatedUser());
-        _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+        authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
         _ldapUserService.changePassword(USER_LISA, CHANGED_PASSWORD, DEFAULT_PASSWORD);
         assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
 
     }
 
+    @Ignore
     @Test
     public void testChangePasswordAsSystem() {
 
-        _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+        authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
         assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
         _ldapUserService.changePassword(USER_LISA, null, CHANGED_PASSWORD);
-        _authenticationService.authenticate(USER_LISA, CHANGED_PASSWORD.toCharArray());
+        authenticationService.authenticate(USER_LISA, CHANGED_PASSWORD.toCharArray());
         assertEquals(USER_LISA, AuthenticationUtil.getFullyAuthenticatedUser());
-        _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+        authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
         _ldapUserService.changePassword(USER_LISA, null, DEFAULT_PASSWORD);
         assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
 
     }
 
+    @Ignore
     @Test
     public void testPasswordAlgorithms() {
 
         // Change to SHA
-        _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+        authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
         assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
         ((LdapUserServiceImpl) _ldapUserService).setPasswordAlgorithm("sha");
         _ldapUserService.changePassword(USER_LISA, null, CHANGED_PASSWORD);
-        _authenticationService.authenticate(USER_LISA, CHANGED_PASSWORD.toCharArray());
+        authenticationService.authenticate(USER_LISA, CHANGED_PASSWORD.toCharArray());
         assertEquals(USER_LISA, AuthenticationUtil.getFullyAuthenticatedUser());
         // Reset
-        _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+        authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
         _ldapUserService.changePassword(USER_LISA, null, DEFAULT_PASSWORD);
         assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
 
         // Change to SSHA
-        _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+        authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
         assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
         ((LdapUserServiceImpl) _ldapUserService).setPasswordAlgorithm("ssha");
         _ldapUserService.changePassword(USER_LISA, null, CHANGED_PASSWORD);
-        _authenticationService.authenticate(USER_LISA, CHANGED_PASSWORD.toCharArray());
+        authenticationService.authenticate(USER_LISA, CHANGED_PASSWORD.toCharArray());
         assertEquals(USER_LISA, AuthenticationUtil.getFullyAuthenticatedUser());
         // Reset
-        _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+        authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
         _ldapUserService.changePassword(USER_LISA, null, DEFAULT_PASSWORD);
         assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
 
         // Change to MD5
-        _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+        authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
         assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
         ((LdapUserServiceImpl) _ldapUserService).setPasswordAlgorithm("md5");
         _ldapUserService.changePassword(USER_LISA, null, CHANGED_PASSWORD);
-        _authenticationService.authenticate(USER_LISA, CHANGED_PASSWORD.toCharArray());
+        authenticationService.authenticate(USER_LISA, CHANGED_PASSWORD.toCharArray());
         assertEquals(USER_LISA, AuthenticationUtil.getFullyAuthenticatedUser());
         // Reset
-        _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+        authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
         _ldapUserService.changePassword(USER_LISA, null, DEFAULT_PASSWORD);
         assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
 
         // Change to unsupported
-        _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+        authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
         assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
         ((LdapUserServiceImpl) _ldapUserService).setPasswordAlgorithm("unsupported");
 
@@ -114,6 +118,7 @@ public class LdapUserServiceIT extends AbstractLdapRepoIT {
         ((LdapUserServiceImpl) _ldapUserService).setPasswordAlgorithm("ad");
     }
 
+    @Ignore
     @Test
     public void testSystemAddUser() {
         _testAddUserAsSystem(USER_ABRAHAM);
@@ -121,47 +126,50 @@ public class LdapUserServiceIT extends AbstractLdapRepoIT {
 
     protected void _testAddUserAsSystem(String user) {
 
-        _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+        authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
         assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
         _ldapUserService.createUser(user, DEFAULT_PASSWORD, user + "@simpson.com", StringUtils.capitalize(user),"Simpson");
-        _authenticationService.authenticate(user, DEFAULT_PASSWORD.toCharArray());
+        authenticationService.authenticate(user, DEFAULT_PASSWORD.toCharArray());
         assertEquals(user, AuthenticationUtil.getFullyAuthenticatedUser());
-        _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+        authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
         assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
 
     }
 
+    @Ignore
     @Test
     public void testDeleteUserAsSystem() {
 
         _testAddUserAsSystem(USER_MONA);
-        _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+        authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
         assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
         _ldapUserService.deleteUser(USER_MONA);
 
         try {
-            _authenticationService.authenticate(USER_MONA, DEFAULT_PASSWORD.toCharArray());
+            authenticationService.authenticate(USER_MONA, DEFAULT_PASSWORD.toCharArray());
             assertTrue(false);
         } catch (AuthenticationException e) {
             // Expected
         }
     }
 
+    @Ignore
     @Test
     public void testUserEditAsSystem() {
 
         _testAddUserAsSystem(USER_TUT);
-        _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+        authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
         assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
         _ldapUserService.editUser(USER_TUT, null, null, null, "Tut2", "Simpson2");
 
     }
 
+    @Ignore
     @Test
     public void testUserEditAsUser() {
 
         _testAddUserAsSystem(USER_HAPPY);
-        _authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
+        authenticationComponent.setCurrentUser(AuthenticationUtil.getSystemUserName());
         assertEquals(AuthenticationUtil.getSystemUserName(), AuthenticationUtil.getFullyAuthenticatedUser());
         _ldapUserService.editUser(USER_HAPPY, DEFAULT_PASSWORD, CHANGED_PASSWORD, "happy2@simpson.com", null,
                 null);

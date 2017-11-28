@@ -17,4 +17,21 @@
     <property name="behaviourFilter" ref="policyBehaviourFilter" />
   </bean>
  -->
+
+ <bean id="authenticationDao" class="org.redpill.alfresco.ldap.repo.security.authentication.CustomRepositoryAuthenticationDao">
+      <property name="nodeService" ref="nodeService" />
+      <property name="authorityService" ref="authorityService" />
+      <property name="tenantService" ref="tenantService" />
+      <property name="namespaceService" ref="namespaceService" />
+      <property name="compositePasswordEncoder" ref="compositePasswordEncoder" />
+      <property name="policyComponent" ref="policyComponent" />
+      <property name="authenticationCache" ref="authenticationCache" />
+      <property name="singletonCache" ref="immutableSingletonCache"/>
+      <property name="transactionService">
+         <ref bean="transactionService" />
+      </property>
+      <property name="ldapUserService" ref="rl.ldapUserService" />
+      <property name="syncZoneId" value="${ldapMgr.syncZoneId}" />
+   </bean>
+
 </beans>

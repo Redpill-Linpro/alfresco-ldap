@@ -34,7 +34,7 @@ import org.springframework.util.Assert;
  * Attach additional information to the person object
  *
  */
-public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, OnUpdatePropertiesPolicy, OnUpdateNodePolicy, OnAddAspectPolicy {
+public class PersonPolicy extends AbstractPolicy implements OnUpdatePropertiesPolicy, OnUpdateNodePolicy, OnAddAspectPolicy {
 
   private static final Logger LOG = Logger.getLogger(PersonPolicy.class);
 
@@ -50,17 +50,7 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
   protected String syncZoneId;
   protected boolean enabled = false;
   protected boolean resetPasswordOnPushSync = false;
-
-  @Override
-  public void onCreateNode(final ChildAssociationRef childAssocRef) {
-    LOG.trace("onCreateNode begin");
-    final NodeRef nodeRef = childAssocRef.getChildRef();
-
-    if (!shouldSkipCreatePolicy(nodeRef)) {
-      addUserToLdap(nodeRef);
-    }
-    LOG.trace("onCreateNode end");
-  }
+  
 
   protected void addUserToLdap(NodeRef nodeRef) {
     addUserToLdap(nodeRef, false);
@@ -87,7 +77,7 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
         NodeRef userInUserStoreNodeRef = getUserOrNull(userId);
         String localPassword = null;
         if (userInUserStoreNodeRef != null) {
-          String passwordProperty = (String) nodeService.getProperty(userInUserStoreNodeRef, ContentModel.PROP_PASSWORD_HASH);
+          String passwordProperty = (String) nodeService.getProperty(userInUserStoreNodeRef, ContentModel.PROP_PASSWORD);
 
           if (!noPassword && passwordProperty.length() > 0) {
             localPassword = "{MD4}" + passwordProperty;
@@ -354,7 +344,6 @@ public class PersonPolicy extends AbstractPolicy implements OnCreateNodePolicy, 
     Assert.notNull(namespacePrefixResolver);
     if (!initialized) {
       LOG.info("Initialized policy");
-      policyComponent.bindClassBehaviour(OnCreateNodePolicy.QNAME, ContentModel.TYPE_PERSON, new JavaBehaviour(this, "onCreateNode", NotificationFrequency.TRANSACTION_COMMIT));
       policyComponent.bindClassBehaviour(OnUpdatePropertiesPolicy.QNAME, ContentModel.TYPE_PERSON, new JavaBehaviour(this, "onUpdateProperties", NotificationFrequency.TRANSACTION_COMMIT));
       policyComponent.bindClassBehaviour(OnUpdateNodePolicy.QNAME, ContentModel.TYPE_PERSON, new JavaBehaviour(this, "onUpdateNode", NotificationFrequency.TRANSACTION_COMMIT));
       policyComponent.bindClassBehaviour(OnAddAspectPolicy.QNAME, RlLdapModel.ASPECT_PUSH_SYNC, new JavaBehaviour(this, "onAddAspect", NotificationFrequency.TRANSACTION_COMMIT));

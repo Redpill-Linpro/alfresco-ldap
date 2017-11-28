@@ -49,7 +49,6 @@
     </property>
     <property name="syncZoneId" value="${ldapMgr.syncZoneId}" />
     <property name="enabled" value="${ldapMgr.enabled}" />
-    <property name="nodeService" ref="NodeService"/>
   </bean>
 <!-- 
   <bean id="authenticationDao" class="org.redpill.alfresco.ldap.security.authentication.CustomRepositoryAuthenticationDao">

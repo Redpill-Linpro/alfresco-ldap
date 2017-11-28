@@ -7,5 +7,5 @@ fi
 # export MAVEN_OPTS="$MAVEN_OPTS -XXaltjvm=dcevm -javaagent:/home/<homedir>/hotswap-agent.jar"
 . ~/hotswap.sh
 echo "MAVEN_OPTS is set to '$MAVEN_OPTS'";
-#mvnDebug clean install alfresco:run
-mvnDebug clean install alfresco:run -Dmaven.test.skip=true
+mvnDebug clean install alfresco:run
+#mvnDebug clean install alfresco:run -Dmaven.test.skip=true
