@@ -32,6 +32,7 @@
       </property>
       <property name="ldapUserService" ref="rl.ldapUserService" />
       <property name="syncZoneId" value="${ldapMgr.syncZoneId}" />
+      <property name="enabled" value="${ldapMgr.enabled}" />
    </bean>
 
 </beans>
