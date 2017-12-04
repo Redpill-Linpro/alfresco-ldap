@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>alfresco-ldap-platform-enterprise</artifactId>
+    <name>Alfresco LDAP - Alfresco Platform/Repository Enterprise JAR Module</name>
+    <description>Platform/Repo Enterprise JAR Module (to be included in the alfresco.war) - part of AIO - SDK 3
+    </description>
+    <packaging>jar</packaging>
+
+    <parent>
+        <groupId>org.redpill-linpro.alfresco.ldap</groupId>
+        <artifactId>alfresco-ldap</artifactId>
+        <version>1.2.0</version>
+    </parent>
+
+    <properties>
+        <alfresco.platform.version>5.2.0</alfresco.platform.version>
+        <alfresco.share.version>5.2.0</alfresco.share.version>
+
+        <!-- Default is to run with a Community edition, change to 'enterprise' if using Enterprise edition -->
+        <maven.alfresco.edition>enterpise</maven.alfresco.edition>
+        <alfresco.client.war>alfresco</alfresco.client.war>
+      <tomcat.home>${tomcat.repo.home}</tomcat.home>
+      <tomcat.port>${tomcat.repo.port}</tomcat.port>
+      <ft.skip>false</ft.skip>
+    </properties>
+
+    <dependencies>
+        <dependency>
+          <groupId>${alfresco.groupId}</groupId>
+          <artifactId>alfresco-enterprise-repository</artifactId>
+          <version>${alfresco.platform.version}</version> 
+        </dependency>
+        <dependency>
+            <groupId>${alfresco.groupId}</groupId>
+            <artifactId>alfresco-remote-api</artifactId>
+            <scope>provided</scope>
+          </dependency>
+        <dependency>
+          <groupId>${alfresco.groupId}</groupId>
+          <artifactId>alfresco-core</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.springframework.security</groupId>
+          <artifactId>spring-security-ldap</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+          <id>redpill-linpro</id>
+          <url>https://maven.redpill-linpro.com/nexus/content/groups/public</url>
+          <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>daily</updatePolicy>
+          </snapshots>
+        </repository>
+      </repositories>
+
+</project>
