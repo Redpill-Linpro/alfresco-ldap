@@ -547,7 +547,7 @@
     <module>alfresco-ldap-platform</module>
     <module>alfresco-ldap-platform-enterprise</module>
     <module>alfresco-ldap-share</module>
-    <module>integration-tests</module>
     <module>alfresco-ldap-embedded</module>
+    <module>integration-tests</module>
   </modules>
 </project>
