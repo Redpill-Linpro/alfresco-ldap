@@ -1,15 +1,8 @@
 package org.redpill.alfresco.ldap.behaviour;
 
-import java.io.Serializable;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.node.NodeServicePolicies.OnAddAspectPolicy;
-import org.alfresco.repo.node.NodeServicePolicies.OnCreateNodePolicy;
 import org.alfresco.repo.node.NodeServicePolicies.OnUpdateNodePolicy;
 import org.alfresco.repo.node.NodeServicePolicies.OnUpdatePropertiesPolicy;
 import org.alfresco.repo.policy.Behaviour.NotificationFrequency;
@@ -30,9 +23,14 @@ import org.redpill.alfresco.ldap.model.RlLdapModel;
 import org.redpill.alfresco.ldap.service.LdapUserService;
 import org.springframework.util.Assert;
 
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Attach additional information to the person object
- *
  */
 public class PersonPolicy extends AbstractPolicy implements OnUpdatePropertiesPolicy, OnUpdateNodePolicy, OnAddAspectPolicy {
 
@@ -50,7 +48,7 @@ public class PersonPolicy extends AbstractPolicy implements OnUpdatePropertiesPo
   protected String syncZoneId;
   protected boolean enabled = false;
   protected boolean resetPasswordOnPushSync = false;
-  
+
 
   protected void addUserToLdap(NodeRef nodeRef) {
     addUserToLdap(nodeRef, false);
@@ -69,6 +67,7 @@ public class PersonPolicy extends AbstractPolicy implements OnUpdatePropertiesPo
     final String firstName = (String) properties.get(ContentModel.PROP_FIRSTNAME);
     final String lastName = (String) properties.get(ContentModel.PROP_LASTNAME);
 
+    LOG.trace("Creating user (user id, first name, last name, email) (" + userId + "," + firstName + "," + lastName + "," + finalEmail + ")");
     AuthenticationUtil.runAsSystem(new RunAsWork<Void>() {
 
       @Override
