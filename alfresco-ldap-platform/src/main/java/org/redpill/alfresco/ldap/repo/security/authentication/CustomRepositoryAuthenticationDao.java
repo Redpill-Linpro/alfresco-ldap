@@ -5,42 +5,46 @@
  */
 package org.redpill.alfresco.ldap.repo.security.authentication;
 
-import java.util.HashSet;
-import java.util.Set;
+import net.sf.acegisecurity.providers.encoding.PasswordEncoder;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationException;
 import org.alfresco.repo.security.authentication.RepositoryAuthenticationDao;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.apache.log4j.Logger;
-
-import net.sf.acegisecurity.providers.encoding.PasswordEncoder;
 import org.alfresco.service.cmr.security.AuthorityService;
+import org.alfresco.service.cmr.security.PersonService;
+import org.apache.log4j.Logger;
 import org.redpill.alfresco.ldap.service.LdapUserService;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
- *
  * @author Jimmie Aleksic
  */
 public class CustomRepositoryAuthenticationDao extends RepositoryAuthenticationDao implements InitializingBean {
 
-  private static final Logger logger = Logger.getLogger(CustomRepositoryAuthenticationDao.class);
+  private static final Logger LOG = Logger.getLogger(CustomRepositoryAuthenticationDao.class);
   protected boolean enabled;
   protected PasswordEncoder passwordEncoder;
   protected LdapUserService ldapUserService;
   protected String syncZoneId;
+  protected PersonService personService;
 
   @Override
   public void createUser(String caseSensitiveUserName, char[] rawPassword) throws AuthenticationException {
     super.createUser(caseSensitiveUserName, null, rawPassword);
 
     if (enabled) {
-      NodeRef nodeRef = getUserOrNull(caseSensitiveUserName);
+      //NodeRef nodeRef = getUserOrNull(caseSensitiveUserName);
+      NodeRef nodeRef = personService.getPersonOrNull(caseSensitiveUserName);
       if (nodeRef != null) {
         String finalEmail = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_EMAIL);
         String firstName = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_FIRSTNAME);
         String lastName = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_LASTNAME);
+        LOG.trace("Creating user (user id, first name, last name, email) (" + caseSensitiveUserName + "," + firstName + "," + lastName + "," + finalEmail + ")");
+
         ldapUserService.createUser(caseSensitiveUserName, new String(rawPassword), false, finalEmail, firstName, lastName);
       }
       // Add user to zone
@@ -54,8 +58,8 @@ public class CustomRepositoryAuthenticationDao extends RepositoryAuthenticationD
         authorityService.addAuthorityToZones(caseSensitiveUserName, zones);
       }
 
-      if (logger.isInfoEnabled()) {
-        logger.info("Adding " + caseSensitiveUserName + " to zone " + zoneName);
+      if (LOG.isInfoEnabled()) {
+        LOG.info("Adding " + caseSensitiveUserName + " to zone " + zoneName);
       }
     }
   }
@@ -72,11 +76,17 @@ public class CustomRepositoryAuthenticationDao extends RepositoryAuthenticationD
     this.enabled = enabled;
   }
 
+
+  public void setPersonService(PersonService personService) {
+    this.personService = personService;
+  }
+
   @Override
   public void afterPropertiesSet() throws Exception {
     Assert.notNull(ldapUserService);
     Assert.notNull(syncZoneId);
     Assert.notNull(enabled);
+    Assert.notNull(personService);
   }
 
 }
