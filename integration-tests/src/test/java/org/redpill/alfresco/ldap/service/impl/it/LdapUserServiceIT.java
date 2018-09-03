@@ -32,7 +32,6 @@ public class LdapUserServiceIT extends AbstractLdapRepoIT {
         _ldapUserService = (LdapUserService) ctx.getBean("rl.ldapUserService");
     }
 
-    @Ignore
     @Test
     public void testChangePasswordAsUser() {
 
@@ -47,7 +46,6 @@ public class LdapUserServiceIT extends AbstractLdapRepoIT {
 
     }
 
-    @Ignore
     @Test
     public void testChangePasswordAsSystem() {
 
@@ -62,7 +60,6 @@ public class LdapUserServiceIT extends AbstractLdapRepoIT {
 
     }
 
-    @Ignore
     @Test
     public void testPasswordAlgorithms() {
 
@@ -109,16 +106,15 @@ public class LdapUserServiceIT extends AbstractLdapRepoIT {
 
         try {
             _ldapUserService.changePassword(USER_LISA, null, CHANGED_PASSWORD);
-            assertTrue("Shoudl receive exception", false);
+            assertTrue("Should receive exception", false);
         } catch (AlfrescoRuntimeException e) {
 
         }
 
         // Reset to default
-        ((LdapUserServiceImpl) _ldapUserService).setPasswordAlgorithm("ad");
+        ((LdapUserServiceImpl) _ldapUserService).setPasswordAlgorithm("ssha");
     }
 
-    @Ignore
     @Test
     public void testSystemAddUser() {
         _testAddUserAsSystem(USER_ABRAHAM);
@@ -136,7 +132,6 @@ public class LdapUserServiceIT extends AbstractLdapRepoIT {
 
     }
 
-    @Ignore
     @Test
     public void testDeleteUserAsSystem() {
 
@@ -153,7 +148,6 @@ public class LdapUserServiceIT extends AbstractLdapRepoIT {
         }
     }
 
-    @Ignore
     @Test
     public void testUserEditAsSystem() {
 
@@ -164,7 +158,6 @@ public class LdapUserServiceIT extends AbstractLdapRepoIT {
 
     }
 
-    @Ignore
     @Test
     public void testUserEditAsUser() {
 

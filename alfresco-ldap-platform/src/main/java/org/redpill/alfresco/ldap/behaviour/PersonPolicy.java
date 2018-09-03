@@ -3,7 +3,6 @@ package org.redpill.alfresco.ldap.behaviour;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.node.NodeServicePolicies.OnAddAspectPolicy;
-import org.alfresco.repo.node.NodeServicePolicies.OnUpdateNodePolicy;
 import org.alfresco.repo.node.NodeServicePolicies.OnUpdatePropertiesPolicy;
 import org.alfresco.repo.policy.Behaviour.NotificationFrequency;
 import org.alfresco.repo.policy.JavaBehaviour;
@@ -32,7 +31,7 @@ import java.util.Set;
 /**
  * Attach additional information to the person object
  */
-public class PersonPolicy extends AbstractPolicy implements OnUpdatePropertiesPolicy, OnUpdateNodePolicy, OnAddAspectPolicy {
+public class PersonPolicy extends AbstractPolicy implements OnUpdatePropertiesPolicy, OnAddAspectPolicy {
 
   private static final Logger LOG = Logger.getLogger(PersonPolicy.class);
 
@@ -122,17 +121,14 @@ public class PersonPolicy extends AbstractPolicy implements OnUpdatePropertiesPo
   @Override
   public void onUpdateProperties(NodeRef nodeRef, Map<QName, Serializable> before, Map<QName, Serializable> after) {
     LOG.trace("onUpdateProperties begin");
+    AuthenticationUtil.runAsSystem(() -> {
+      if (!shouldSkipUpdatePropertiesPolicy(nodeRef, before, after)) {
+        updateUserInLdap(nodeRef, after);
+      }
+      return null;
+    });
 
-    if (!shouldSkipUpdatePropertiesPolicy(nodeRef, before, after)) {
-      updateUserInLdap(nodeRef, after);
-    }
     LOG.trace("onUpdateProperties end");
-  }
-
-  @Override
-  public void onUpdateNode(NodeRef nodeRef) {
-    LOG.trace("onUpdateNode begin");
-    LOG.trace("onUpdateNode end");
   }
 
   @Override
@@ -344,7 +340,6 @@ public class PersonPolicy extends AbstractPolicy implements OnUpdatePropertiesPo
     if (!initialized) {
       LOG.info("Initialized policy");
       policyComponent.bindClassBehaviour(OnUpdatePropertiesPolicy.QNAME, ContentModel.TYPE_PERSON, new JavaBehaviour(this, "onUpdateProperties", NotificationFrequency.TRANSACTION_COMMIT));
-      policyComponent.bindClassBehaviour(OnUpdateNodePolicy.QNAME, ContentModel.TYPE_PERSON, new JavaBehaviour(this, "onUpdateNode", NotificationFrequency.TRANSACTION_COMMIT));
       policyComponent.bindClassBehaviour(OnAddAspectPolicy.QNAME, RlLdapModel.ASPECT_PUSH_SYNC, new JavaBehaviour(this, "onAddAspect", NotificationFrequency.TRANSACTION_COMMIT));
 
       initialized = true;

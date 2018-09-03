@@ -34,10 +34,14 @@ public class CustomRepositoryAuthenticationDao extends RepositoryAuthenticationD
 
   @Override
   public void createUser(String caseSensitiveUserName, char[] rawPassword) throws AuthenticationException {
-    super.createUser(caseSensitiveUserName, null, rawPassword);
+    createUser(caseSensitiveUserName, null, rawPassword);
+  }
+
+  @Override
+  public void createUser(String caseSensitiveUserName, String hashedPassword, char[] rawPassword) throws AuthenticationException {
+
 
     if (enabled) {
-      //NodeRef nodeRef = getUserOrNull(caseSensitiveUserName);
       NodeRef nodeRef = personService.getPersonOrNull(caseSensitiveUserName);
       if (nodeRef != null) {
         String finalEmail = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_EMAIL);
@@ -46,22 +50,57 @@ public class CustomRepositoryAuthenticationDao extends RepositoryAuthenticationD
         LOG.trace("Creating user (user id, first name, last name, email) (" + caseSensitiveUserName + "," + firstName + "," + lastName + "," + finalEmail + ")");
 
         ldapUserService.createUser(caseSensitiveUserName, new String(rawPassword), false, finalEmail, firstName, lastName);
+
+        // Add user to zone
+        final String zoneName = AuthorityService.ZONE_AUTH_EXT_PREFIX + syncZoneId;
+        final Set<String> zones = new HashSet<String>();
+        zones.add(zoneName);
+
+        authorityService.getOrCreateZone(zoneName);
+        Set<String> authoritiesForUser = authorityService.getAuthorityZones(caseSensitiveUserName);
+        if (!authoritiesForUser.contains(zoneName)) {
+          authorityService.addAuthorityToZones(caseSensitiveUserName, zones);
+        }
+
+        if (LOG.isInfoEnabled()) {
+          LOG.info("Adding " + caseSensitiveUserName + " to zone " + zoneName);
+        }
+      } else {
+        throw new AuthenticationException("Could not replicate user " + caseSensitiveUserName + " to ldap. User must be created with PersonService before its authentication is created.");
       }
-      // Add user to zone
+    } else {
+      super.createUser(caseSensitiveUserName, hashedPassword, rawPassword);
+    }
+  }
+
+  @Override
+  public void updateUser(String userName, char[] rawPassword) throws AuthenticationException {
+    if (enabled) {
+      // Remove user if in correct zone
       final String zoneName = AuthorityService.ZONE_AUTH_EXT_PREFIX + syncZoneId;
-      final Set<String> zones = new HashSet<String>();
-      zones.add(zoneName);
-
-      authorityService.getOrCreateZone(zoneName);
-      Set<String> authoritiesForUser = authorityService.getAuthorityZones(caseSensitiveUserName);
-      if (!authoritiesForUser.contains(zoneName)) {
-        authorityService.addAuthorityToZones(caseSensitiveUserName, zones);
+      Set<String> authoritiesForUser = authorityService.getAuthorityZones(userName);
+      if (authoritiesForUser != null && authoritiesForUser.contains(zoneName)) {
+        ldapUserService.changePassword(userName, null, new String(rawPassword));
       }
+      else {
+        super.updateUser(userName, rawPassword);
+      }
+    } else {
+      super.updateUser(userName, rawPassword);
+    }
+  }
 
-      if (LOG.isInfoEnabled()) {
-        LOG.info("Adding " + caseSensitiveUserName + " to zone " + zoneName);
+  @Override
+  public void deleteUser(String username) {
+    if (enabled) {
+      // Remove user if in correct zone
+      final String zoneName = AuthorityService.ZONE_AUTH_EXT_PREFIX + syncZoneId;
+      Set<String> authoritiesForUser = authorityService.getAuthorityZones(username);
+      if (authoritiesForUser != null && authoritiesForUser.contains(zoneName)) {
+        ldapUserService.deleteUser(username);
       }
     }
+    super.deleteUser(username);
   }
 
   public void setLdapUserService(LdapUserService ldapUserService) {
