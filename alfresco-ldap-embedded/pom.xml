@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>alfresco-ldap-embedded</artifactId>
     <name>Alfresco LDAP - Alfresco Embedded JAR Module</name>
@@ -21,7 +22,7 @@
     </properties>
 
     <dependencies>
-      
+
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-ldap</artifactId>
@@ -38,6 +39,12 @@
         <dependency>
             <groupId>${alfresco.groupId}</groupId>
             <artifactId>alfresco-repository</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>antlr</groupId>
+                    <artifactId>antlr</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>${alfresco.groupId}</groupId>
@@ -79,45 +86,39 @@
         </dependency>
         -->
 
-          <dependency>
-              <groupId>org.apache.directory.server</groupId>
-              <artifactId>apacheds-core</artifactId>
-              <version>1.5.5</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.directory.server</groupId>
-              <artifactId>apacheds-core-entry</artifactId>
-              <version>1.5.5</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.directory.server</groupId>
-              <artifactId>apacheds-protocol-ldap</artifactId>
-              <version>1.5.5</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.directory.server</groupId>
-              <artifactId>apacheds-protocol-shared</artifactId>
-              <version>1.5.5</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.directory.server</groupId>
-              <artifactId>apacheds-server-jndi</artifactId>
-              <version>1.5.5</version>
-          </dependency>
-        
+        <dependency>
+            <groupId>org.apache.directory.server</groupId>
+            <artifactId>apacheds-core</artifactId>
+            <version>1.5.5</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>antlr</groupId>
+                    <artifactId>antlr</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.directory.server</groupId>
+            <artifactId>apacheds-core-entry</artifactId>
+            <version>1.5.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.directory.server</groupId>
+            <artifactId>apacheds-protocol-ldap</artifactId>
+            <version>1.5.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.directory.server</groupId>
+            <artifactId>apacheds-protocol-shared</artifactId>
+            <version>1.5.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.directory.server</groupId>
+            <artifactId>apacheds-server-jndi</artifactId>
+            <version>1.5.5</version>
+        </dependency>
 
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.5.6</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.5.6</version>
-            <type>jar</type>
-        </dependency>
+
     </dependencies>
 
     <build>

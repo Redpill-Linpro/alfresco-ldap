@@ -31,6 +31,6 @@ public class PersonPolicyIT extends AbstractLdapRepoIT {
 
   @Test
   public void test() {
-    
+
   }
 }

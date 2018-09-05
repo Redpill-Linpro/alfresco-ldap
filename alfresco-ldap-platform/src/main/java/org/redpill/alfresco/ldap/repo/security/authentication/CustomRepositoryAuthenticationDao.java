@@ -12,6 +12,7 @@ import org.alfresco.repo.security.authentication.RepositoryAuthenticationDao;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PersonService;
+import org.alfresco.util.GUID;
 import org.apache.log4j.Logger;
 import org.redpill.alfresco.ldap.service.LdapUserService;
 import org.springframework.beans.factory.InitializingBean;
@@ -65,12 +66,16 @@ public class CustomRepositoryAuthenticationDao extends RepositoryAuthenticationD
         if (LOG.isInfoEnabled()) {
           LOG.info("Adding " + caseSensitiveUserName + " to zone " + zoneName);
         }
+
+        //Create is necessary for things to work, however, do not store password on internal account
+        super.createUser(caseSensitiveUserName, GUID.generate(), GUID.generate().toCharArray());
       } else {
         throw new AuthenticationException("Could not replicate user " + caseSensitiveUserName + " to ldap. User must be created with PersonService before its authentication is created.");
       }
     } else {
       super.createUser(caseSensitiveUserName, hashedPassword, rawPassword);
     }
+
   }
 
   @Override
