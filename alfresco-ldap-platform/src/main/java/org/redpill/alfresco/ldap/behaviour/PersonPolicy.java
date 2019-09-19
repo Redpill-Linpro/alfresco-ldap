@@ -1,16 +1,8 @@
 package org.redpill.alfresco.ldap.behaviour;
 
-import java.io.Serializable;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.node.NodeServicePolicies.OnAddAspectPolicy;
-import org.alfresco.repo.node.NodeServicePolicies.OnCreateNodePolicy;
-import org.alfresco.repo.node.NodeServicePolicies.OnUpdateNodePolicy;
 import org.alfresco.repo.node.NodeServicePolicies.OnUpdatePropertiesPolicy;
 import org.alfresco.repo.policy.Behaviour.NotificationFrequency;
 import org.alfresco.repo.policy.JavaBehaviour;
@@ -30,11 +22,16 @@ import org.redpill.alfresco.ldap.model.RlLdapModel;
 import org.redpill.alfresco.ldap.service.LdapUserService;
 import org.springframework.util.Assert;
 
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Attach additional information to the person object
- *
  */
-public class PersonPolicy extends AbstractPolicy implements OnUpdatePropertiesPolicy, OnUpdateNodePolicy, OnAddAspectPolicy {
+public class PersonPolicy extends AbstractPolicy implements OnUpdatePropertiesPolicy, OnAddAspectPolicy {
 
   private static final Logger LOG = Logger.getLogger(PersonPolicy.class);
 
@@ -50,7 +47,7 @@ public class PersonPolicy extends AbstractPolicy implements OnUpdatePropertiesPo
   protected String syncZoneId;
   protected boolean enabled = false;
   protected boolean resetPasswordOnPushSync = false;
-  
+
 
   protected void addUserToLdap(NodeRef nodeRef) {
     addUserToLdap(nodeRef, false);
@@ -69,6 +66,7 @@ public class PersonPolicy extends AbstractPolicy implements OnUpdatePropertiesPo
     final String firstName = (String) properties.get(ContentModel.PROP_FIRSTNAME);
     final String lastName = (String) properties.get(ContentModel.PROP_LASTNAME);
 
+    LOG.trace("Creating user (user id, first name, last name, email) (" + userId + "," + firstName + "," + lastName + "," + finalEmail + ")");
     AuthenticationUtil.runAsSystem(new RunAsWork<Void>() {
 
       @Override
@@ -123,17 +121,14 @@ public class PersonPolicy extends AbstractPolicy implements OnUpdatePropertiesPo
   @Override
   public void onUpdateProperties(NodeRef nodeRef, Map<QName, Serializable> before, Map<QName, Serializable> after) {
     LOG.trace("onUpdateProperties begin");
+    AuthenticationUtil.runAsSystem(() -> {
+      if (!shouldSkipUpdatePropertiesPolicy(nodeRef, before, after)) {
+        updateUserInLdap(nodeRef, after);
+      }
+      return null;
+    });
 
-    if (!shouldSkipUpdatePropertiesPolicy(nodeRef, before, after)) {
-      updateUserInLdap(nodeRef, after);
-    }
     LOG.trace("onUpdateProperties end");
-  }
-
-  @Override
-  public void onUpdateNode(NodeRef nodeRef) {
-    LOG.trace("onUpdateNode begin");
-    LOG.trace("onUpdateNode end");
   }
 
   @Override
@@ -345,7 +340,6 @@ public class PersonPolicy extends AbstractPolicy implements OnUpdatePropertiesPo
     if (!initialized) {
       LOG.info("Initialized policy");
       policyComponent.bindClassBehaviour(OnUpdatePropertiesPolicy.QNAME, ContentModel.TYPE_PERSON, new JavaBehaviour(this, "onUpdateProperties", NotificationFrequency.TRANSACTION_COMMIT));
-      policyComponent.bindClassBehaviour(OnUpdateNodePolicy.QNAME, ContentModel.TYPE_PERSON, new JavaBehaviour(this, "onUpdateNode", NotificationFrequency.TRANSACTION_COMMIT));
       policyComponent.bindClassBehaviour(OnAddAspectPolicy.QNAME, RlLdapModel.ASPECT_PUSH_SYNC, new JavaBehaviour(this, "onAddAspect", NotificationFrequency.TRANSACTION_COMMIT));
 
       initialized = true;

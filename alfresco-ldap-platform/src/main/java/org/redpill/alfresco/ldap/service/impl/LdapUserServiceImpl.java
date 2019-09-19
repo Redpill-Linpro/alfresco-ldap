@@ -60,17 +60,7 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
     logger.debug("Changing password for user " + userId);
 
     editUser(userId, oldPassword, newPassword, null, null, null);
-    /*
-     * final ModificationItem[] modItems = new ModificationItem[] { new
-     * ModificationItem(DirContext.REPLACE_ATTRIBUTE, new
-     * BasicAttribute(passwordAttributeName, hashedPassword)) }; try {
-     * executeUpdate(userId, oldPassword, modItems); } catch
-     * (InvalidAttributeValueException e) { if
-     * (e.getMessage().contains("LDAP: error code 19") &&
-     * e.getMessage().contains("unicodePwd") &&
-     * e.getMessage().contains("CONSTRAINT_ATT_TYPE")) { throw new
-     * PasswordDoesNotConformToPolicy(e); } else { throw e; } }
-     */
+
   }
 
   @Override
@@ -140,7 +130,6 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
 
     if (newPassword != null) {
       try {
-        // if (oldPassword == null) {
         Object hashedPassword = newPassword;
         try {
           hashedPassword = generatePassword(newPassword);
@@ -150,16 +139,7 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
         }
         hashedPassword = generatePassword(newPassword);
         modItems.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(passwordAttributeName, hashedPassword)));
-        /*
-         * } else { // Active Directory require a remove/add if a user wants to
-         * change a // password Object oldPassword2 =
-         * generatePassword(oldPassword); Object newPassword2 =
-         * generatePassword(newPassword); modItems.add(new
-         * ModificationItem(DirContext.REMOVE_ATTRIBUTE, new
-         * BasicAttribute(passwordAttributeName, oldPassword2)));
-         * modItems.add(new ModificationItem(DirContext.ADD_ATTRIBUTE, new
-         * BasicAttribute(passwordAttributeName, newPassword2))); }
-         */
+
       } catch (NoSuchAlgorithmException | UnsupportedEncodingException e1) {
         logger.error(e1);
         throw new AlfrescoRuntimeException("Error hashing password", e1);
@@ -215,10 +195,6 @@ public class LdapUserServiceImpl implements LdapUserService, InitializingBean {
           } finally {
             ctx.close();
           }
-
-          // Skip setting password as user, set it as system user isntead if
-          // authentication succceeds
-          // ctx.modifyAttributes(dn, modItems);
 
           return null;
         }
