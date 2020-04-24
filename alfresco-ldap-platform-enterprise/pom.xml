@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>alfresco-ldap-platform-enterprise</artifactId>
     <name>Alfresco LDAP - Alfresco Platform/Repository Enterprise JAR Module</name>
@@ -10,7 +11,7 @@
     <parent>
         <groupId>org.redpill-linpro.alfresco.ldap</groupId>
         <artifactId>alfresco-ldap</artifactId>
-        <version>1.5.0</version>
+        <version>1.5.1-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -20,29 +21,31 @@
         <!-- Default is to run with a Community edition, change to 'enterprise' if using Enterprise edition -->
         <maven.alfresco.edition>enterpise</maven.alfresco.edition>
         <alfresco.client.war>alfresco</alfresco.client.war>
-      <tomcat.home>${tomcat.repo.home}</tomcat.home>
-      <tomcat.port>${tomcat.repo.port}</tomcat.port>
-      <ft.skip>false</ft.skip>
+        <tomcat.home>${tomcat.repo.home}</tomcat.home>
+        <tomcat.port>${tomcat.repo.port}</tomcat.port>
+        <ft.skip>false</ft.skip>
     </properties>
 
     <dependencies>
         <dependency>
-          <groupId>${alfresco.groupId}</groupId>
-          <artifactId>alfresco-enterprise-repository</artifactId>
-          <version>${alfresco.platform.version}</version> 
+            <groupId>${alfresco.groupId}</groupId>
+            <artifactId>alfresco-enterprise-repository</artifactId>
+            <version>${alfresco.platform.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>${alfresco.groupId}</groupId>
             <artifactId>alfresco-remote-api</artifactId>
             <scope>provided</scope>
-          </dependency>
-        <dependency>
-          <groupId>${alfresco.groupId}</groupId>
-          <artifactId>alfresco-core</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.springframework.security</groupId>
-          <artifactId>spring-security-ldap</artifactId>
+            <groupId>${alfresco.groupId}</groupId>
+            <artifactId>alfresco-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-ldap</artifactId>
         </dependency>
     </dependencies>
 
@@ -57,13 +60,13 @@
 
     <repositories>
         <repository>
-          <id>redpill-linpro</id>
-          <url>https://maven.redpill-linpro.com/nexus/content/groups/public</url>
-          <snapshots>
-            <enabled>true</enabled>
-            <updatePolicy>daily</updatePolicy>
-          </snapshots>
+            <id>redpill-linpro</id>
+            <url>https://maven.redpill-linpro.com/nexus/content/groups/public</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
         </repository>
-      </repositories>
+    </repositories>
 
 </project>
