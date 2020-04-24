@@ -22,3 +22,5 @@ old/
 .idea/
 *.log
 *.log*
+
+.DS_Store
